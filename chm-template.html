@@ -1,0 +1,795 @@
+<html>
+
+<head>
+<title>"$chm_title$"</title>
+
+<style>
+    html, #body1 { margin: 0 !important; padding: 0 !important; border: 0 !important; overflow: hidden !important;}
+    
+    #body1 {
+        display: inline-flex !important;
+        flex-direction: row !important;
+        width: 100% !important;
+        height: 100% !important;
+    }
+	
+    #navigation_window {
+		background-color: #eae9d7;
+		height: 100%;
+		width: 210px;
+		overflow: auto;
+		margin: 0;
+		padding: 0;
+		border: 0;
+		padding-right: 6px;
+		display: flex;
+		flex-direction: column;
+	}
+	
+	#navigation_window * {
+		font-family: sans-serif !important;
+		font-size: 14 !important;
+		overflow-x: hidden
+	}
+	
+    #contents_window {
+		background-color: #fff;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        margin: 0;
+        padding: 0;
+        overflow:hidden;
+        border: none;
+    }
+    
+	.noselect {
+		-webkit-touch-callout: none; /* iOS Safari */
+		-webkit-user-select: none; /* Safari */
+		-khtml-user-select: none; /* Konqueror HTML */
+		-moz-user-select: none; /* Firefox */
+		-ms-user-select: none; /* Internet Explorer/Edge */
+		user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
+	}
+</style>
+
+<style>
+/* Style tabs */
+.tab {
+	background-color: transparent;
+    margin-top: 8px;
+    position: relative;
+}
+
+.tab button {
+    background: linear-gradient(to bottom, #ebebe5, #fff);
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 6px;
+    padding-left: 7px;
+    padding-right: 7px;
+
+	border-radius: 4px;
+	border-bottom-left-radius:0px;
+	border-bottom-right-radius:0px;
+	border: 1px solid #9da1a5;
+	
+	margin-left:1px;
+	margin-top:2px;
+}
+
+.tab button.active {
+	background: #fcfcfe;
+	border-bottom: 0px;
+	margin-top:1px;
+	border-top: 3px solid #f7ca3d;
+	box-shadow: 0 -1px 0 #de8a33;
+	margin-right: -1px;
+	margin-left: 0px;
+	padding-left: 9px;
+}
+
+.tab button.active span {
+	position: relative;
+	left: -1px;
+}
+
+.tabcontent {
+    display: none;
+    padding: 2px;
+    flex: 1;
+    overflow: auto;
+}
+
+/* checkbox style */
+.css-treeview * {
+	overflow: hidden;
+}
+
+.css-treeview input[type=checkbox] {
+	display: none
+}
+
+.css-treeview input[type=checkbox] + label
+{
+	background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAQCAYAAAB3AH1ZAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gQBEQYDCNPu9wAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUHAAABEUlEQVRIx7WV3a2CQBCFzxiagsiDlGBiBZbhXh/ItGEFJpbAi0bKOj7gkIXLwkqWIYQlWTjf/K6QxFYmIgQAkhLak20prND+PQQhKSMwFvbNwU1GIgnAnPAShJDE435bpDiezhISfz/faMomCnYMkXkCwY8e99vsT5uyQfWsoiAUOqiJXcCrn9NgEDFmEEGAtfYLhKVvN/bcvPfXKSHc99JaQXIYAZKwrvDXc0ZSHNwixFg46SAiKSJCvw0NoiiLLu+1ojpUyPc52lcLd3VwVzddA2tmw1QkirLoPfbFDYqkZLGttjYSl78L2leLfJ/3NTUYRpbrlDcAKpQAqHX37KT+75WtTkPr86XTULY8jmPsA9GO+xDjEIy2AAAAAElFTkSuQmCC');
+	background-repeat: no-repeat;
+	display:inline-block;
+	height: 16px;
+	padding: 1px 0 2px 38px;
+	margin: 2px;
+}
+
+.css-treeview input[type=checkbox]:checked + label
+{
+	background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAQCAYAAAB3AH1ZAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gQBEQYMmGzzZgAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUHAAAA60lEQVRIx82Uy23DMBBE3wZuioAvVgsBUoG7MOODtOwiacCGUwJ1MKC2Ngc6ihR9YsO0kgF44A/zOFwSMkpLNf5KWqo158ZuhVhl8jf24My1MH7vZSqd7twqdxJu7Yh1HBjvXncAhCoMEzgd3n6N7fllK9dCFJtiYJwkgKbEvgcSwJyuADRFe3sAa87NV68d1zKtU9QAe1qmRPsH7mohAPkBMgEgIoO2aAKXy+q1RRO4V0HCbAKhChSb4iEA4vGTEKEKrblbu/Gf8OP4ngPCNL1zAGIdiXUcNWayKjJUXBdiTh7/EIDxavuv+gQRUKMDzp2o2QAAAABJRU5ErkJggg==');
+	background-repeat: no-repeat;
+	display:inline-block;
+	height: 16px;
+	padding: 1px 0 2px 38px;
+	margin: 2px;
+}
+
+.css-treeview input[type=checkbox].not_folder + label
+{
+	background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAQCAYAAAB3AH1ZAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gQBEQUsiC+AbQAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUHAAAArElEQVRIx82VwQqDMBBE3xT/Wnpp9css8bOmFzVJo/Ti2g4MS0DczdtBZZszNT7Hry/s7722g+1TPTwGHwunKXl5BtvcCJMWU1SvBDKpawnYyxSbQwlIVC4vnKYEELkCY1O5Xg/RA7QEJKosAHRxATS2qmZ76qLwA0ht88/PTuAKwNZBDsIzoI3AjzLgXdxrNi5agRrcubliCcyvGUhAWUulPObZf0PtRf+f9QZT5gTfgDcxzAAAAABJRU5ErkJggg==');
+	background-repeat: no-repeat;
+	display:inline-block;
+	height: 16px;
+	padding: 1px 0px 2px 38px;
+	margin: 2px;
+}
+
+/* collapse code: */
+
+.css-treeview ul
+{
+	padding: 0;
+	margin-top: 0;
+	list-style-type: none;
+}
+
+.css-treeview input + label + ul
+{
+    margin: 0 0 0 22px;
+}
+ 
+.css-treeview input ~ ul
+{
+    display: none;
+}
+ 
+.css-treeview input:checked:not(:disabled) ~ ul
+{
+    display: block;
+}
+
+#contents_window div {
+	padding: 8px;
+	margin: 0;
+	flex: 1;
+	overflow: auto;
+}
+
+.fade_sides_div:after {
+  z-index  : 1;
+  background-image : linear-gradient(to left, 
+                    rgba(255,255,255, 0), 
+                    rgba(255,255,255, 1) 90%);
+  width    : 100%;
+  height   : 4em;
+}
+</style>
+
+</head>
+
+<body id="body1" style="display: flex; flex-direction: row;">
+
+<div id="navigation_window" class="noselect">
+	<div class="tab">
+		<button id="defaultopen" class="tablinks active" onclick="openTab(event, 'tab_contents')"><span class="tab_txt">Contents</span></button>
+		<button class="tablinks" onclick="openTab(event, 'tab_index')"><span class="tab_txt">Index</span></button>
+		<button class="tablinks" onclick="openTab(event, 'tab_search')"><span class="tab_txt">Search</span></button>
+	</div>
+	<div style="border: 1px solid #9da1a5; margin-top: -1px; flex: 1; display: flex; flex-direction: column; background-color: #fff;">
+		<div style="margin: 7px; flex: 1; display: flex; flex-direction: column; background-color: #fff; border: 1px solid #819bbc; overflow: auto;">
+			<div id="tab_contents" class="tabcontent">
+				<div class="css-treeview" id="tstlist">
+				</div>
+			</div>
+			<div id="tab_index" class="tabcontent">
+				<input type="text" style="width: 100%; padding: 5px;" id="index_filter_text" placeholder="Filter..."></input>
+				<table id="index_table" style="width: inherit; border-spacing: 0px;">
+				</table>
+			</div>
+			<div id="tab_search" class="tabcontent">
+				<input type="text" style="width: 100%; padding: 5px;" id="search_text" placeholder="Search..."></input>
+				<table id="search_table" style="width: inherit; border-spacing: 0px;">
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="contents_window" style="padding: 0; margin: 0; flex: 1;">
+</div>
+
+
+<script>
+var index_names = "$index_names$";
+var index_links = "$index_links$";
+function my_sort(arr, twin) {
+	for(var i=0; i<arr.length; i++) {
+		for(var j=i+1; j<arr.length; j++) {
+			if(arr[i].toLowerCase() > arr[j].toLowerCase()) {
+				var tmp = arr[i];
+				arr[i] = arr[j];
+				arr[j] = tmp;
+				tmp = twin[i];
+				twin[i] = twin[j];
+				twin[j] = tmp;
+			}
+		}
+	}
+}
+my_sort(index_names, index_links);
+
+var toc_paths = "$toc_paths$".map(function(p){return p.toLowerCase()});
+var toc_html = "$toc_html$";
+var toc_divs = [];
+
+function setup_divs() {
+	toc_divs = toc_html.map(function(h,i){
+		var div = document.createElement("div");
+		div.innerHTML = h;
+		div.style.display = "none";
+		contents_window.appendChild(div);
+		return replaceAllLinks(div, toc_paths[i].split("/"));
+	});
+}
+
+var list_src = "$toc_arr$";
+
+function makeLowerCase(str) {
+	if(str && str.length > 0)
+		return str.toLowerCase();
+	return str;
+}
+
+// Recursively iterate list src and generate
+var tmplid = 0;
+const dom_parser = new DOMParser();
+var first_page = null;
+var contents_window = document.getElementById("contents_window");
+var allContentSpans = [];
+var gendList;
+function generateList(src)
+{
+	var ul = document.createElement("ul");
+	for(var i=0; i<src.length; i++)
+	{
+		var isFolder = src[i].length > 2;
+		var li = document.createElement("li");
+		ul.appendChild(li);
+
+		var chk = document.createElement("input");
+		chk.type = "checkbox"
+		chk.id = "gen_list_item-"+(tmplid++);
+		if(!isFolder)
+			chk.className += " not_folder";
+		chk.isFolder = isFolder;
+		li.appendChild(chk);
+		if(first_page == null)
+			first_page = chk;
+
+		var label = document.createElement("label");
+		label.htmlFor = chk.id;
+		chk.myLabel = label;
+		li.appendChild(label);
+		
+		var span = document.createElement("span");
+		span.innerHTML = src[i][0];
+		label.appendChild(span);
+		chk.mySpan = span;
+		allContentSpans.push(span);
+		
+		chk.myPath = src[i][1];
+		
+		chk.highlight_select = function() {
+			allContentSpans.forEach(function(s){s.style.backgroundColor="";s.style.color=""; s.style.border=""});
+			this.mySpan.style.backgroundColor = "#5790ff";
+			this.mySpan.style.color = "white";
+			this.mySpan.style.border = "1px dotted black";
+		}
+		chk.onclick = function(evt) {
+			if(chk.myPath.length > 0) {
+				justManuallyChangedHash = true;
+				console.log("setting page "+this.myPath);
+				set_page(this.myPath);
+			}
+			this.highlight_select();
+			
+			if(isFolder) {
+				return true;
+			}
+			event.preventDefault();
+		}
+		
+		// use li to check the checkbox incase you hit the space inbetween 2 check labels
+		li.myChk = chk;
+		li.onclick = function(evt) {
+			if(this.myUL && this.myUL.contains(evt.target))
+				return true; //let child li handle
+			else if(this.myChk.contains(evt.target)){
+				return true; // let checkbox handle
+			} else {
+				this.myChk.click();
+				return false; // handled, stop
+			}
+		}
+		
+		if(isFolder) {
+			var my_ul = generateList( src[i].slice(2) );
+			li.appendChild(my_ul);
+			li.myUL = my_ul;
+		}
+	}
+	return ul;
+}
+
+function cmpArr(a1, a2) {
+	if(!Array.isArray(a1) || !Array.isArray(a2) || a1.length != a2.length)
+		return;
+	for(var i=0; i<a1.length; i++) {
+		if(a1[i] != a2[i])
+			return false;
+	}
+	return true;
+}
+
+function expandAndSelectFile(hash_path, _checkbox_list, _element) {
+	if(!Array.isArray(_checkbox_list))
+		_checkbox_list = [];
+	if(!_element)
+		_element = gendList;
+		
+	// traverse dom tree for checkboxes
+	var last_checkbox = null;
+	var children = Array.prototype.slice.call(_element.childNodes);
+	for(var i=0; i<children.length; i++) {
+		var child = children[i];
+		if(child.tagName == "LI" || child.tagName == "UL") {
+			if(last_checkbox != null && expandAndSelectFile(hash_path, _checkbox_list.concat([last_checkbox]), child)) {
+				return true;
+			} else if(expandAndSelectFile(hash_path, _checkbox_list, child)) {
+				return true;
+			}
+		}
+		else if(child.tagName == "INPUT" && child.type == "checkbox") {
+			last_checkbox = child;
+			if( !child.isFolder && child.myPath == hash_path ) {
+				// expand each folder and click the file
+				_checkbox_list.forEach(function(c){c.checked = true;})
+				child.highlight_select();
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+function scrollElemToAnchor(elem, anchor_name) {
+	var all = document.getElementsByName(anchor_name);
+	var in_elem = Array.from(all).filter(function(e) {return elem.contains(e)});
+	if(in_elem.length > 0) {
+		var anchor_elem = in_elem[0];
+		anchor_elem.scrollIntoView();
+	}
+}
+
+function isWWWLink(value) {
+  return /^(?:(?:(?:https?|ftp):)?\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:[/?#]\S*)?$/i.test(value);
+}
+
+function getCenter(quotedSpacedStr) {
+	str = quotedSpacedStr.trim();
+	if((str.charAt(0) == '"' || str.charAt(0) == "'") && str.length >= 2) {
+		return str.slice(1,str.length-1);
+	}
+	return str;
+}
+
+var scrollIds = {};
+var curScrollId = 0;
+var curDiv = null;
+window.addEventListener('scroll', function(evt) {
+	if(curDiv)
+		scrollIds[curScrollId] = curDiv.scrollTop;
+}, true);
+
+function replaceAllLinks(div, path) {
+	//move style & script tags to base for search cache
+	remove_html_body_style_script(div);
+	div.tabIndex = -1;
+	div.style.outline = "none";
+	var links = Array.from(div.getElementsByTagName("a"));
+	var path_text = path.join("/");
+	for(var i=0; i<links.length; i++) {
+		var l = links[i];
+		//console.log(l.href);
+		var href = l.getAttribute("href");
+		if(!href || href.length <= 1) {
+			this.href = this.initHref = "";
+			continue;
+		}
+		else if(isWWWLink(href)) {
+			continue;
+		}
+		else if(href.charAt(0) == "#") { //link to cur page 
+			l.href = l.initHref = "#"+path_text + href;
+		} else {
+			//count ../'s and prefix with proper dir
+			var count = (href.match(/\.\.\//g) || []).length;
+			var prefix = path.slice(0, Math.max(0, path.length - 1 - count)).join("/");
+			l.href = l.initHref = "#"+prefix + (prefix.length>0?"/":"") + href.replace(/\.\.\//g, "");
+		}
+		
+		l.onclick = function() {
+			this.href = this.initHref + "?id=" + (curScrollId+1);
+			delete scrollIds[curScrollId+1];
+		}
+	}
+	return div;
+}
+
+function remove_html_body_style_script(div) {
+	var style_script = Array.from(div.getElementsByTagName("style")).concat(Array.from(div.getElementsByTagName("script")));
+	var to_remove = Array.from(div.getElementsByTagName("title"));
+	to_remove.forEach(function(e){e.remove();});
+	var dummy_script = document.createElement("script");
+	// marker for search functions
+	dummy_script.innerHTML = "/*htmlCHM END OF STYLE AND SCRIPTS htmlCHM*/                               ";
+	if(div.firstChild)
+		div.insertBefore(dummy_script, div.firstChild);
+	else
+		div.appendChild(dummy_script);
+	// move styles to beginning
+	for(var i=0; i<style_script.length; i++) {
+		style_script[i].remove();
+		div.insertBefore(style_script[i], dummy_script);
+	}
+	var body_elems = Array.from(div.getElementsByTagName("body"));
+	div.innerHTML = body_elems.length == 0?div.innerHTML:body_elems[0].innerHTML;
+}
+
+function tryGetFilePathFromFolder(folder_path) {
+	var match_paths = toc_paths.filter(function(path){return path.startsWith(folder_path)});
+	
+	match_paths = match_paths.filter(function(path){
+		return path.endsWith("index.html") || path.endsWith("index.htm")
+		|| path.endsWith("default.html") || path.endsWith("default.htm")
+		|| path.endsWith("home.html") || path.endsWith("home.htm")
+	});
+	if(match_paths.length >= 1)
+		return match_paths[0];
+	
+	if(match_paths.length == 0)
+		return folder_path;
+}
+
+function openFileAtPos(hash, noJump) {
+	hash = hash.slice(hash.charAt(0) == "#"? 1:0);
+	var hashInfo = getHashInfo(hash);
+	// open given doc, inside given folder
+	var file_path = hashInfo.page.toLowerCase(); // all to lowercase since case doesn't matter in windows and normal CHM files
+	if(toc_paths.indexOf(file_path) == -1)
+		file_path = tryGetFilePathFromFolder(file_path);
+	
+	var path_index = toc_paths.indexOf(file_path);
+	if(path_index > -1) {
+		console.log("opening "+file_path);
+		toc_divs.forEach((d)=>d.style.display = "none");
+		curDiv = toc_divs[path_index];
+		curDiv.style.display = "";
+		if(!noJump)
+			scrollElemToAnchor(curDiv, hashInfo.jumpto);
+		curDiv.focus();
+	} else {
+		console.log(file_path+" does not exist");
+	}
+}
+
+function getHashInfo(hash) {
+	var full = hash;
+	var page = hash;
+	var jumpto = "";
+	var GET = "";
+	
+	if(hash.charAt(0) == "#")
+		page = hash.substring(1);
+	if(page.indexOf("?") > -1) {
+		GET = page.substring(page.indexOf("?")+1);
+		page = page.substring(0, page.indexOf("?"));
+	}
+	if(page.indexOf("#") > -1) {
+		jumpto = page.substring(page.indexOf("#")+1);
+		page = page.substring(0, page.indexOf("#"));
+	}
+	return {full:full, page:page, jumpto:jumpto, GET:GET};
+}
+
+var lastClickTime = 0;
+document.addEventListener("click", function(evnt){
+    lastClickTime = Date.now();
+});
+
+var justManuallyChangedHash = false;
+window.onhashchange = function() {
+	var hashInfo = getHashInfo(location.hash);
+	curScrollId = parseInt(hashInfo.GET.slice(3))||0;
+	
+	if(!justManuallyChangedHash)
+		expandAndSelectFile(hashInfo.page);
+	justManuallyChangedHash = false;
+	
+	if(location.hash.charAt(0) == "#") {
+		openFileAtPos(location.hash.slice(1), scrollIds[curScrollId]);
+		if(!curDiv)
+			return;
+		// new GET scroll id exists, scroll to saved position
+		if(curScrollId in scrollIds) {
+			console.log("scroll id "+ curScrollId +" exists. scrolling to "+scrollIds[curScrollId]);
+			curDiv.scrollTop = scrollIds[curScrollId];
+		}
+		else {
+			scrollIds[curScrollId] = curDiv.scrollTop;
+			if(!hashInfo.jumpto)
+				curDiv.scrollTop = 0;
+		}
+	}
+	
+	if(queue_select.length > 0) {
+		console.log(queue_select)
+		setSelectionRange(queue_select[0], queue_select[1], queue_select[2]);
+		queue_select = [];
+	}
+}
+
+function openTab(evt, tabName) {
+    var i, tabcontent, tablinks;
+
+    tabcontent = document.getElementsByClassName("tabcontent");
+    for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+    }
+
+    tablinks = document.getElementsByClassName("tablinks");
+    for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+    }
+
+    document.getElementById(tabName).style.display = "block";
+    evt.currentTarget.className += " active";
+}
+document.getElementById("defaultopen").click();
+
+var index_tab = document.getElementById("tab_index");
+var index_table = document.getElementById("index_table");
+var index_filter_text = document.getElementById("index_filter_text");
+var all_table_indexes = [];
+function populateIndex() {
+	for(var i=0; i<index_names.length; i++) {
+		var tr = document.createElement("tr");
+		var td = document.createElement("td");
+		td.style.padding = "5px";
+		td.innerHTML = index_names[i];
+		all_table_indexes.push(td);
+		td.style.border = "1px solid transparent";
+		td.docLink = index_links[i];
+		
+		td.onclick = function() {
+			all_table_indexes.forEach(function(s){s.style.backgroundColor="";s.style.color=""; s.style.border="1px solid transparent"});
+			this.style.backgroundColor = "#5790ff";
+			this.style.color = "white";
+			this.style.border = "1px dotted black";
+			set_page(this.docLink)
+		}
+		tr.appendChild(td);
+		index_table.appendChild(tr);
+	}
+}
+index_filter_text.oninput = function() {
+	var trs = Array.from(index_table.getElementsByTagName("tr"));
+	var val = this.value.toLowerCase();
+	for(var i=0; i<trs.length; i++) {
+		if(trs[i].innerHTML.toLowerCase().indexOf(val) > -1)
+			trs[i].style.display = "";
+		else
+			trs[i].style.display = "none";
+	}
+}
+function getTextNodesIn(node) {
+    var textNodes = [];
+    if (node.nodeType == 3) {
+        textNodes.push(node);
+    } else {
+        var children = node.childNodes;
+        for (var i = 0, len = children.length; i < len; ++i) {
+            textNodes.push.apply(textNodes, getTextNodesIn(children[i]));
+        }
+    }
+    //console.log(textNodes)
+    return textNodes;
+}
+
+function set_page(path) {
+	location.hash = "#" + path + "?id=" + (curScrollId+1);
+	delete scrollIds[curScrollId+1];
+}
+
+function getLastElementBeforePos(pos, parent) {
+	var text_nodes = getTextNodesIn(parent);
+	var text_len = 0;
+	var last_node = text_nodes[i];
+	for(var i=0; i<text_nodes.length; i++) {
+		var node = text_nodes[i];
+		if(node.data.length + text_len < pos) {
+			text_len += node.data.length
+			last_node = node;
+		}
+		else {
+			return last_node.parentNode;
+		}
+	}
+}
+
+var queue_select = [];
+function setSelectionRange(el, start, end) {
+    if (document.createRange && window.getSelection) {
+        var range = document.createRange();
+        range.selectNodeContents(el);
+        var textNodes = getTextNodesIn(el);
+        var foundStart = false;
+        var charCount = 0, endCharCount;
+
+        for (var i = 0, textNode; textNode = textNodes[i++]; ) {
+            endCharCount = charCount + textNode.length;
+            if (!foundStart && start >= charCount
+                    && (start < endCharCount ||
+                    (start == endCharCount && i <= textNodes.length))) {
+                range.setStart(textNode, start - charCount);
+                foundStart = true;
+            }
+            if (foundStart && end <= endCharCount) {
+                range.setEnd(textNode, end - charCount);
+                break;
+            }
+            charCount = endCharCount;
+        }
+
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+    } else if (document.selection && document.body.createTextRange) {
+        var textRange = document.body.createTextRange();
+        textRange.moveToElementText(el);
+        textRange.collapse(true);
+        textRange.moveEnd("character", end);
+        textRange.moveStart("character", start);
+        textRange.select();
+    }
+    // also scroll text into view
+    var elementAbove = getLastElementBeforePos(start, el)
+    if(elementAbove) {
+		curDiv.scrollTop = elementAbove.offsetTop;
+	}
+}
+var search_text = document.getElementById("search_text");
+var search_table = document.getElementById("search_table");
+var all_search_tds = [];
+function add_search_result(path, div, text_start, text_end, pre, mid, post) {
+	//setSelectionRange(div, text_start, text_end);
+	var tr = document.createElement("tr");
+	var td = document.createElement("td");
+	td.style.padding = "5px";
+	td.style.border = "1px solid transparent";
+	td.style.backgroundColor = "transparent";
+	var text_div = document.createElement("div");
+	var path_div = document.createElement("div");
+	text_div.style.textAlign = "center";
+	text_div.style.marginLeft = "-100%";
+	text_div.style.marginRight = "-100%";
+	//text_div.style.width = "100%"
+	text_div.style.overflow = "hidden";
+	text_div.style.backgroundColor = "transparent";
+	path_div.style.overflow = "hidden";
+	path_div.style.color = "#bbb";
+	path_div.style.backgroundColor = "transparent";
+	text_div.innerHTML = pre+"<span style='background-color: #b0befc;'>"+mid+"</span>"+post;
+	//text_div.className += "fade_sides_div";
+	path_div.innerHTML = path;
+	tr.appendChild(td);
+	td.appendChild(text_div);
+	td.appendChild(path_div);
+	td.path = path;
+	td.div = div;
+	td.text_start = text_start;
+	td.text_end = text_end;
+	td.onclick = function() {
+		all_search_tds.forEach(function(s){s.style.backgroundColor="";s.style.color=""; s.style.border="1px solid transparent"});
+		this.style.backgroundColor = "#5790ff";
+		this.style.color = "white";
+		this.style.border = "1px dotted black";
+		queue_select = [this.div, this.text_start, this.text_end];
+		set_page(this.path);
+	}
+	all_search_tds.push(td);
+	search_table.appendChild(tr);
+}
+
+search_text.oninput = function() {
+	search_table.innerHTML = "";
+	if(this.value.trim()) {
+		var search_text_value = this.value.toLowerCase();
+		all_search_tds = [];
+		for(var i=0; i<toc_paths.length; i++) {
+			var path = toc_paths[i];
+			var div = toc_divs[i];
+			var text_start = -1;
+			var text_end = -1;
+			var pre = "";
+			var post = "";
+			if(div.textContent) {
+				text_start = div.textContent.toLowerCase().indexOf(search_text_value, div.textContent.indexOf("/*htmlCHM END OF STYLE AND SCRIPTS htmlCHM*/")+"/*htmlCHM END OF STYLE AND SCRIPTS htmlCHM*/".length);
+				text_end = text_start+search_text_value.length;
+			}
+			if(text_start > -1) {
+				pre = div.textContent.substring(text_start-15, text_start);
+				var mid = div.textContent.substring(text_start, text_end);
+				post = div.textContent.substring(text_end, text_end+20);
+				add_search_result(path, div, text_start, text_end, pre, mid, post);
+			}
+		}
+	}
+}
+
+function bake_cookie(name, value) {
+	var cookie = [name, '=', JSON.stringify(value), '; domain=.', window.location.host.toString(), '; path=/;'].join('');
+	document.cookie = cookie;
+}
+
+window.getCookie = function(name) {
+	match = document.cookie.match(new RegExp(name + '=([^;]+)'));
+	if (match) return match[1];
+}
+
+//save scrolls between refresh
+window.onbeforeunload = function() {
+	localStorage.setItem("scroll_info", JSON.stringify({
+		curScrollId:curScrollId,
+		scrollIds:scrollIds
+	}));
+}
+
+window.onload = function() {
+	var scroll_info = localStorage.getItem("scroll_info");
+	if(scroll_info) {
+		scroll_info = JSON.parse(scroll_info);
+		curScrollId = scroll_info.curScrollId;
+		scrollIds = scroll_info.scrollIds;
+	}
+	document.getElementById("tstlist").appendChild( gendList = generateList(list_src) );
+	setup_divs();
+	populateIndex();
+	if(location.hash.length == 0) {
+		location.hash = "#index.html";
+	}
+	else {
+		window.onhashchange();
+	}
+}
+</script>
+</body>
+</html>

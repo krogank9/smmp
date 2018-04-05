@@ -1,0 +1,7 @@
+# chm-html
+
+A tool to create HTML5 powered CHM browsers.
+
+# Usage
+
+Run chm-html.py inside the CHM source directory.
