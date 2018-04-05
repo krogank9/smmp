@@ -294,7 +294,7 @@ def parseHTML(html):
 # CHM TO HTML COMPILER #
 ########################
 
-import os, sys, codecs, chardet
+import os, sys, codecs
 
 WWW_INDEX_NAMES = ["index.html", "index.htm", "default.html", "default.htm", "home.html", "home.htm"]
 
