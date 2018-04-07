@@ -300,6 +300,35 @@ WWW_INDEX_NAMES = ["index.html", "index.htm", "default.html", "default.htm", "ho
 
 # HELPER FUNCTIONS
 
+def strMatch(string, compareTo):
+	sPos = 0
+	while sPos < len(string) and sPos < len(compareTo):
+		if string[sPos] == "*": # if there is a wildcard, replace 
+			wildcard = "*"
+			wildcardText = ""
+			nextChar = string[sPos+1:]
+			for c in nextChar:
+				if c == "*":
+					wildcard += "*"
+				else:
+					nextChar = c
+					break
+			if len(nextChar) > 1:
+				nextChar = ""
+			for c in compareTo[sPos:]:
+				if c != nextChar:
+					wildcardText += c
+				else:
+					break
+			string = string.replace(wildcard, wildcardText, 1)
+		if string[sPos] != compareTo[sPos]:
+			return False
+		sPos += 1
+	# would have returned False already if they aren't the same,
+	#  unless one string ended before the other
+	return len(string) == len(compareTo)
+		
+
 def codecsReadAuto(name):
 	try:
 		return codecs.open(name, "r", encoding="utf-8").read()
@@ -327,7 +356,7 @@ def readFileCaseInsensitive(name):
 	else:
 		files = os.listdir(os.getcwd())
 	for f in files:
-		if f.lower() == name.lower():
+		if strMatch(name.lower(), f.lower()):
 			name = f
 	if folders:
 		return codecsReadAuto("/".join(folders)+"/"+name)
@@ -337,14 +366,14 @@ def readFileCaseInsensitive(name):
 def isDirCaseInsensitive(name):
 	files = os.listdir(os.getcwd())
 	for f in files:
-		if f.lower() == name.lower() and os.path.isdir(f):
+		if os.path.isdir(f) and strMatch(name.lower(), f.lower()):
 			return True
 	return False
 	
 def isFileCaseInsensitive(name):
 	files = os.listdir(os.getcwd())
 	for f in files:
-		if f.lower() == name.lower() and os.path.isfile(f):
+		if os.path.isfile(f) and strMatch(name.lower(), f.lower()):
 			return True
 	return False
 	
@@ -463,6 +492,9 @@ def replace_styles(html_str, file_path):
 
 # Now actually compile the CHM source to HTML...
 
+if len(sys.argv) >= 2:
+	os.chdir(sys.argv[1])
+
 if (not isFileCaseInsensitive("index.hhk") or not isFileCaseInsensitive("table of contents.hhc")):
 	print("error! no index.hhk/table of contents.hhc")
 	sys.exit()
@@ -482,7 +514,16 @@ CHM_TEMPLATE = "<!-- Created with CHM-HTML https://github.com/krogank9/chm-html 
 
 gen_chm = CHM_TEMPLATE
 
-chm_title = raw_input("Input CHM title for display:\n")
+chm_title = ""
+if isFileCaseInsensitive("*.hhp"):
+	lines = readFileCaseInsensitive("*.hhp").split("\n")
+	for l in lines:
+		assign = l.split("=")
+		if len(assign) == 2 and assign[0].strip() == "Title":
+			chm_title = assign[1].strip()
+if not chm_title:
+	chm_title = raw_input("No hhp file found. Choose CHM title for display:\n")
+	
 replace_vars = [chm_title, str_arr(index_names), str_arr(index_links), str_arr(toc_paths), str_arr(toc_html), str_arr(toc_arr)]
 replace_words = ['"$chm_title$"', '"$index_names$"', '"$index_links$"', '"$toc_paths$"', '"$toc_html$"', '"$toc_arr$"']
 
