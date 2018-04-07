@@ -492,8 +492,16 @@ def replace_styles(html_str, file_path):
 
 # Now actually compile the CHM source to HTML...
 
+original_cwd = os.getcwd()
 if len(sys.argv) >= 2:
-	os.chdir(sys.argv[1])
+	try:
+		os.chdir(sys.argv[1])
+	except:
+		if os.name == "nt":
+			print("Error: Directory \""+sys.argv[1]+"\" does not exist. Aborted.\n")
+		else:
+			sys.stderr.write("\033[91mError: Directory \""+sys.argv[1]+"\" does not exist. Aborted.\033[0m\n")
+		sys.exit(1)
 
 if (not isFileCaseInsensitive("index.hhk") or not isFileCaseInsensitive("table of contents.hhc")):
 	print("error! no index.hhk/table of contents.hhc")
@@ -531,6 +539,7 @@ for var, word in zip(replace_vars, replace_words):
 	CHM_TEMPLATE = replaceAfterIndex(CHM_TEMPLATE, replacing, str(var), 0)
 	next_index = pre_find + (len(CHM_TEMPLATE) - pre_len)
 
+os.chdir(original_cwd)
 codecs.open("gen_chm.html", "w", "utf-8-sig").write(CHM_TEMPLATE)
 
 #todo support unicode and audit escapeStringForJS
