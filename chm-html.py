@@ -242,9 +242,9 @@ def parseHTML(html):
 						curNode = curNode.parent
 						break
 					curNode = curNode.parent
-			else: #broken html.. but append tag as string for remaking
-				curNode.children.append( parseTagStartingHere()["wholeTag"] )
-		else: #not a closing tag
+			else: #broken html, tried to close unopened tag... but append tag as string for remaking
+				curNode.children.append( tagInfo["wholeTag"] )
+		else: #it was an opening tag
 			if (curNode.tagName.lower() == tagInfo["tagName"].lower() 
 				and tagInfo["tagName"].lower() in CHAIN_CLOSE_TAGS):
 				curNode.innerHTML = html[curNode.startPos+len(curNode.openingTag):tagInfo["startPos"]]
