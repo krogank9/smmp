@@ -139,7 +139,7 @@ def parseAttrs(attrs):
 	def setEmptyAttrs(string, noMoreAttrs=False):
 		words = splitStrByWhitespace(string)
 		sliceTo = len(words) - 1
-		#also treat last word as an empty (implicitly true) attribute if 
+		#also treat last word as an empty (implicitly True) attribute if 
 		#it was the last element in attrs array and there are no more 
 		#right hand assignments to loop through
 		if noMoreAttrs:
@@ -187,7 +187,7 @@ def parseHTML(html):
 	# navigate past > of tag and get tags info
 	def parseTagStartingHere():
 		global cursor_pos
-		tagInfo = {'wholeTag':"", 'insideTag':"", 'tagName':"", 'isClosing':False, 'attrs':"", 'attrsObj':{}, 'startPos':cursor_pos}
+		tagInfo = {"wholeTag":"", "insideTag":"", "tagName":"", "isClosing":False, "attrs":"", "attrsObj":{}, "startPos":cursor_pos}
 		endPos = html.find(">", cursor_pos)
 		if endPos > -1:
 			tagInfo["wholeTag"] = html[cursor_pos:endPos+1]
