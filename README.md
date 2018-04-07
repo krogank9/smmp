@@ -4,7 +4,8 @@ A tool to create HTML5 powered CHM browsers.
 
 # Usage
 
-Run chm-html.py inside the CHM source directory and it will output a portable "gen_chm.html" file containing the browser logic packaged with the CHM.
+`python chm-html.py DIRECTORY`
+Run the chm-html.py script inside the CHM source directory and it will output a portable "gen_chm.html" file containing the browser packaged with the chm. If `DIRECTORY` is unspecified it will use the current working directory.
 
 # Example
 
