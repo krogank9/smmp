@@ -137,16 +137,16 @@ def parseAttrs(attrs):
 	pos = 0
 	attrs = attrs.split("=")
 	def setEmptyAttrs(string, noMoreAttrs=False):
-		components = splitStrByWhitespace(string)
-		sliceTo = len(components) - 1
+		words = splitStrByWhitespace(string)
+		sliceTo = len(words) - 1
 		#also treat last word as an empty (implicitly true) attribute if 
 		#it was the last element in attrs array and there are no more 
 		#right hand assignments to loop through
 		if noMoreAttrs:
 			sliceTo += 1
-		for attrName in components[0:sliceTo]:
+		for attrName in words[0:sliceTo]:
 			attrsObj[attrName] = True
-		return components[-1]
+		return words[-1]
 	
 	#loop through all attributes. after setting all empty ones,
 	#remove them from before the attribute so it can be used on
