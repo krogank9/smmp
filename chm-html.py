@@ -181,7 +181,6 @@ cursor_pos = 0
 def parseHTML(html):
 	html_lower = html.lower()
 	global cursor_pos
-	cursor_pos = 0 # global to modify in nested func
 	rootNode = HTMLNode()
 	curNode = rootNode
 	# navigate past > of tag and get tags info
