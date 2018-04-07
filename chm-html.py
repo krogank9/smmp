@@ -244,7 +244,7 @@ def parseHTML(html):
 					curNode = curNode.parent
 			else: #broken html.. but append tag as string for remaking
 				curNode.children.append( parseTagStartingHere()["wholeTag"] )
-		else: #tagInfo["isClosing"] == False:
+		else: #not a closing tag
 			if (curNode.tagName.lower() == tagInfo["tagName"].lower() 
 				and tagInfo["tagName"].lower() in CHAIN_CLOSE_TAGS):
 				curNode.innerHTML = html[curNode.startPos+len(curNode.openingTag):tagInfo["startPos"]]
