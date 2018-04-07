@@ -516,9 +516,8 @@ gen_chm = CHM_TEMPLATE
 
 chm_title = ""
 if isFileCaseInsensitive("*.hhp"):
-	lines = readFileCaseInsensitive("*.hhp").split("\n")
-	for l in lines:
-		assign = l.split("=")
+	for line in readFileCaseInsensitive("*.hhp").split("\n"):
+		assign = line.split("=")
 		if len(assign) == 2 and assign[0].strip() == "Title":
 			chm_title = assign[1].strip()
 if not chm_title:
