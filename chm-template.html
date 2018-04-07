@@ -437,9 +437,14 @@ function replaceAllLinks(div, path) {
 			l.href = l.initHref = "#"+prefix + (prefix.length>0?"/":"") + href.replace(/\.\.\//g, "");
 		}
 		
-		l.onclick = function() {
+		l.onmouseup = l.onkeyup = function() {
 			this.href = this.initHref + "?id=" + (curScrollId+1);
+			var tmp = scrollIds[curScrollId+1];
 			delete scrollIds[curScrollId+1];
+			saveScrollInfo();
+			var linkOpenedInNewTab = (evt.button == 2) || evt.ctrlKey;
+			if(linkOpenedInNewTab)
+				scrollIds[curScrollId+1] = tmp;
 		}
 	}
 	return div;
@@ -767,7 +772,9 @@ window.getCookie = function(name) {
 }
 
 //save scrolls between refresh
-window.onbeforeunload = function() {
+window.onbeforeunload = function(){saveScrollInfo()}
+
+function saveScrollInfo() {
 	localStorage.setItem("scroll_info", JSON.stringify({
 		curScrollId:curScrollId,
 		scrollIds:scrollIds
