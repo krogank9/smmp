@@ -140,7 +140,8 @@ def parseAttrs(attrs):
 		components = splitStrByWhitespace(string)
 		sliceTo = len(components) - 1
 		#treat last word as an empty (implicitly true) attribute if 
-		#there was not an equals sign following it
+		#it was the last element in attrs array and there are no more 
+		#right hand assignments to loop through
 		if noMoreAttrs:
 			sliceTo += 1
 		for attrName in components[0:sliceTo]:
