@@ -184,7 +184,7 @@ def parseHTML(html):
 	cursor_pos = 0
 	rootNode = HTMLNode()
 	curNode = rootNode
-	# navigate past > of tag and get tags info
+	# navigate from < past > of tag and get tags info
 	def parseTagStartingHere():
 		global cursor_pos
 		tagInfo = {"wholeTag":"", "insideTag":"", "tagName":"", "isClosing":False, "attrs":"", "attrsObj":{}, "startPos":cursor_pos}
