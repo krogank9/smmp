@@ -139,7 +139,7 @@ def parseAttrs(attrs):
 	def setEmptyAttrs(string, noMoreAttrs=False):
 		components = splitStrByWhitespace(string)
 		sliceTo = len(components) - 1
-		#treat last word as an empty (implicitly true) attribute if 
+		#also treat last word as an empty (implicitly true) attribute if 
 		#it was the last element in attrs array and there are no more 
 		#right hand assignments to loop through
 		if noMoreAttrs:
