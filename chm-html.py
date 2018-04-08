@@ -91,8 +91,8 @@ class HTMLNode():
 			parent.childReplaced = True
 			parent = parent.parent
 			
-	def remakeHTML(self):
-		if self.childReplaced:
+	def remakeHTML(self, forceRemake=False):
+		if self.childReplaced or forceRemake:
 			updatedHTML = self.openingTag
 			for child in self.children:
 				if isinstance(child, basestring):
@@ -279,17 +279,13 @@ def parseHTML(html):
 						curNode.closingTag = parseTagStartingHere()["wholeTag"]
 					curNode.outerHTML = curNode.openingTag+curNode.innerHTML+curNode.closingTag
 					
-					
-	while curNode is not rootNode: # close any tags still open
+	# all done parsing html string. close any tags still open
+	while curNode is not rootNode: 
 		curNode.innerHTML = html[curNode.startPos+len(curNode.openingTag):]
 		curNode.outerHTML = curNode.openingTag+curNode.innerHTML
 		curNode = curNode.parent
-		
-	for child in rootNode.children:
-		if isinstance(child, basestring):
-			rootNode.outerHTML += child
-		else:
-			rootNode.outerHTML += child.outerHTML
+	
+	rootNode.outerHTML = rootNode.remakeHTML(True)
 	
 	return rootNode
 
