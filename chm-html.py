@@ -249,8 +249,8 @@ def parseHTML(html):
 				and tagInfo["tagName"].lower() in CHAIN_CLOSE_TAGS):
 				curNode.innerHTML = html[curNode.startPos+len(curNode.openingTag):tagInfo["startPos"]]
 				curNode.outerHTML = curNode.openingTag+curNode.innerHTML
-				curNode = curNode.parent #chainable tags.. such as <li>
-				curNode = curNode.addChild( HTMLNode(tagInfo) ) #close prev and add next as sibling in parent
+				curNode = curNode.parent #close prev and add next as sibling in parent
+				curNode = curNode.addChild( HTMLNode(tagInfo) ) 
 			else:
 				curNode = curNode.addChild( HTMLNode(tagInfo) )
 				
@@ -260,7 +260,7 @@ def parseHTML(html):
 					opt_close = html_lower.find("</"+curNode.tagName.lower(), cursor_pos)
 					if opt_close > -1 and len(html[cursor_pos:opt_close].strip()) == 0:
 						lastChar = html[opt_close+2+len(curNode.tagName)+1]
-						# make sure optional close is valid and for right tag name
+						# make sure optional close is valid
 						if lastChar == ">" or charIsWhitespace(lastChar):
 							curNode.innerHTML = html[cursor_pos:opt_close]
 							cursor_pos = opt_close
