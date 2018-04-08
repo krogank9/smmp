@@ -381,13 +381,23 @@ function expandAndSelectFile(hash_path, _checkbox_list, _element) {
 	return false;
 }
 
-function scrollElemToAnchor(elem, anchor_name) {
-	var all = document.getElementsByName(anchor_name);
-	var in_elem = Array.from(all).filter(function(e) {return elem.contains(e)});
-	if(in_elem.length > 0) {
-		var anchor_elem = in_elem[0];
-		anchor_elem.scrollIntoView();
-	}
+function scrollElemToAnchor(inside_elem, anchor_name) {
+	anchor_lower = anchor_name.toLowerCase();
+	var all = Array.from(inside_elem.getElementsByTagName("*"));
+	console.log(all)
+	var allMatches = []
+	var caseMatches = []
+	all.forEach(function(e){
+		if(!e.getAttribute("name"))
+			return
+		else if(e.getAttribute("name") == anchor_name)
+			caseMatches.push(e)
+		else if(e.getAttribute("name").toLowerCase() == anchor_lower)
+			allMatches.push(e)
+	})
+	allMatches = caseMatches.concat(allMatches);
+	if(allMatches.length > 0)
+		allMatches[0].scrollIntoView();
 }
 
 function isWWWLink(value) {
