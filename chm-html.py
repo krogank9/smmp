@@ -286,7 +286,6 @@ def parseHTML(html):
 		curNode = curNode.parent
 	
 	rootNode.outerHTML = rootNode.remakeHTML(True)
-	
 	return rootNode
 
 
