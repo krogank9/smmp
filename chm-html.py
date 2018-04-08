@@ -270,13 +270,15 @@ def parseHTML(html):
 				elif curNode.tagName.lower() in SKIP_TAGS:
 					#skip over entirely the contents in script/style tags
 					#as their syntax is not html. just jump to close tag
-					newPos = html_lower.find(curNode.tagName.lower(), cursor_pos)
+					newPos = html_lower.find("</"+curNode.tagName.lower(), cursor_pos)
 					if newPos < 0:
-						newPos = html.length
-					curNode.innerHTML = html[cursor_pos, newPos]
-					curNode.closingTag = parseTagStartingHere()["wholeTag"]
-					curNode.outerHTML = curNode.openingTag+curNode.innerHTML+curNode.closingTag
+						newPos = len(html)
+					curNode.innerHTML = html[cursor_pos:newPos]
 					cursor_pos = newPos
+					if cursor_pos < len(html):
+						curNode.closingTag = parseTagStartingHere()["wholeTag"]
+					curNode.outerHTML = curNode.openingTag+curNode.innerHTML+curNode.closingTag
+					
 					
 	while curNode is not rootNode: # close any tags still open
 		curNode.innerHTML = html[curNode.startPos+len(curNode.openingTag):]
