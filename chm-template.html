@@ -517,16 +517,43 @@ function openFileAtPos(hash, noJump) {
 	}
 }
 
+function makeHashFromInfo(hashInfo) {
+	var page = (hashInfo.page?"#":"")+(hashInfo.page||"")
+	var jumpto = (hashInfo.jumpto?"#":"")+(hashInfo.jumpto||"")
+	var GET = ""
+	
+	console.log(hashInfo.GET)
+	var keys = Object.keys(hashInfo.GET)
+	console.log(keys)
+	for(var i=0; i<keys.length; i++){
+		var key = keys[i]
+		var val = hashInfo.GET[key]
+		GET += (key + (val!==""?"=":"") + val)
+	}
+	if(GET.length > 0)
+		GET = "?" + GET
+		
+	console.log(GET)
+	
+	return page+jumpto+GET
+}
+
 function getHashInfo(hash) {
 	var full = hash;
 	var page = hash;
 	var jumpto = "";
-	var GET = "";
+	var GET = {};
 	
 	if(hash.charAt(0) == "#")
 		page = hash.substring(1);
 	if(page.indexOf("?") > -1) {
 		GET = page.substring(page.indexOf("?")+1);
+		var GETkv = {}
+		GET.split("&").forEach(function(v){
+			v = v.split("=")
+			GETkv[v[0]] = v.length > 1? v[1]:"" 
+		})
+		GET = GETkv
 		page = page.substring(0, page.indexOf("?"));
 	}
 	if(page.indexOf("#") > -1) {
@@ -541,10 +568,14 @@ document.addEventListener("click", function(evnt){
     lastClickTime = Date.now();
 });
 
+var justLoaded = true
 var justManuallyChangedHash = false;
 window.onhashchange = function() {
 	var hashInfo = getHashInfo(location.hash);
-	curScrollId = parseInt(hashInfo.GET.slice(3))||0;
+	curScrollId = parseInt(hashInfo.GET.id)||0;
+	
+	if(!justLoaded && !("id" in hashInfo.GET))
+		window.history.back()
 	
 	if(!justManuallyChangedHash)
 		expandAndSelectFile(hashInfo.page);
@@ -552,8 +583,10 @@ window.onhashchange = function() {
 	
 	if(location.hash.charAt(0) == "#") {
 		openFileAtPos(location.hash.slice(1), scrollIds[curScrollId]);
-		if(!curDiv)
+		if(!curDiv || justLoaded || curScrollId <= 0) {
+			justLoaded = false
 			return;
+		}
 		// new GET scroll id exists, scroll to saved position
 		if(curScrollId in scrollIds) {
 			console.log("scroll id "+ curScrollId +" exists. scrolling to "+scrollIds[curScrollId]);
@@ -801,12 +834,19 @@ window.onload = function() {
 	document.getElementById("tstlist").appendChild( gendList = generateList(list_src) );
 	setup_divs();
 	populateIndex();
-	if(location.hash.length == 0) {
-		location.hash = "#index.html";
-	}
-	else {
-		window.onhashchange();
-	}
+	
+	var originalHash = location.hash
+	var newHash = originalHash
+	var hashInfo = getHashInfo(location.hash)
+	hashInfo.page = hashInfo.page || "index.html"
+	hashInfo.jumpto = hashInfo.jumpto || ""
+	hashInfo.GET.id = hashInfo.GET.id || 1
+	var newHash = makeHashFromInfo(hashInfo)
+	
+	if(originalHash == newHash)
+		window.onhashchange()
+	else
+		location.hash = newHash
 }
 </script>
 </body>
