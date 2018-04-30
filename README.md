@@ -11,3 +11,8 @@ Run the chm-html.py script with a CHM's source directory as the first argument a
 # Example
 
 https://krogank9.github.io/gen_chm.html
+
+# License
+
+CC0 (Creative Commons Public Domain)
+![alt text](https://i.creativecommons.org/p/zero/1.0/88x31.png)
