@@ -674,15 +674,13 @@ function set_page(path) {
 function getLastElementBeforePos(pos, parent) {
 	var text_nodes = getTextNodesIn(parent);
 	var text_len = 0;
-	var last_node = text_nodes[i];
 	for(var i=0; i<text_nodes.length; i++) {
 		var node = text_nodes[i];
 		if(node.data.length + text_len < pos) {
 			text_len += node.data.length
-			last_node = node;
 		}
 		else {
-			return last_node.parentNode;
+			return node.parentNode;
 		}
 	}
 }
