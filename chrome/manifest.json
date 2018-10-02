@@ -2,7 +2,7 @@
 	"manifest_version": 2,
 
 	"name": "Social Media MEGAposter",
-	"version": "2.22",
+	"version": "2.23",
 
 	"browser_action": {
 	},

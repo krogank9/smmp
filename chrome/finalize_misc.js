@@ -109,6 +109,10 @@ function mirrorGplusYouTubeResult() {
 }
 mirrorGplusYouTubeResult();
 
+function isASCII(str) {
+    return /^[\x00-\x7F]*$/.test(str);
+}
+
 // TAB EVENT LISTENER
 
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
@@ -142,9 +146,12 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
 		chrome.debugger.attach({tabId: sender.tab.id}, "1.0", function() {
 			if(chrome.runtime.lastError)
 				;
+				
+			var text = removeEmojis(message.text);
+		
 			//message.text = message.text.replace("\n", "\r");
-			for(var i=0; i<message.text.length; i++) {
-				var char = message.text[i];
+			for(var i=0; i<text.length; i++) {
+				var char = text[i];
 				//console.log("typing: "+char);
 				//var keyCode = char.charCodeAt(0);
 				
@@ -165,11 +172,6 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
 					{"type" : "keyUp", "unmodifiedText" : char, "text" : char});
 				}
 			}
-			setTimeout(function() {
-				try {
-					//chrome.debugger.detach({tabId: sender.tab.id});
-				} catch(err){}
-			}, 2000);
 		});
 	}
 	else if(message.simulateDoubleUpPress) {
@@ -196,6 +198,17 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
 			{"type" : "rawKeyDown", "windowsVirtualKeyCode" : 13, modifiers: 2}); // enter w/ ctrl modifier
 			chrome.debugger.sendCommand({tabId: sender.tab.id}, 'Input.dispatchKeyEvent',
 			{"type" : "keyUp", "windowsVirtualKeyCode" : 13, modifiers: 2});
+		});
+	}
+	else if(message.simulateBackspace) {
+		chrome.debugger.attach({tabId: sender.tab.id}, "1.0", function() {
+			if(chrome.runtime.lastError)
+				;
+			
+			chrome.debugger.sendCommand({tabId: sender.tab.id}, 'Input.dispatchKeyEvent',
+			{"type" : "rawKeyDown", "windowsVirtualKeyCode" : 8});
+			chrome.debugger.sendCommand({tabId: sender.tab.id}, 'Input.dispatchKeyEvent',
+			{"type" : "keyUp", "windowsVirtualKeyCode" : 8});
 		});
 	}
 	else if(message.simulateClearTextbox) {

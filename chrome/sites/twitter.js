@@ -43,15 +43,15 @@ function makeTextPost() {
 	
 	setTimeout(function() {
 		simulateClearTextbox(function() {
-			simulateTypeText(getSocialHeadline(), function() {
-				setTimeout(function() {
-					simulateCtrlEnter(function() {
-						setTimeout(function() {
-							chrome.runtime.sendMessage({closeThis: true});
-						}, 2000);
-					});
-				}, 2000);
-			});
+			document.activeElement.innerText = getSocialHeadline();
+			
+			setTimeout(function() {
+				simulateCtrlEnter(function() {
+					setTimeout(function() {
+						chrome.runtime.sendMessage({closeThis: true});
+					}, 2000);
+				});
+			}, 2000);
 		});
 	}, 1000);
 }
@@ -69,36 +69,36 @@ function uploadVideo() {
 	
 	setTimeout(function() {
 		simulateClearTextbox(function() {
-			simulateTypeText(video_info.headline + appendLink, function() {
-				let file_list = video_filelist || imgs_filelist
-				console.log(file_list)
-				for(var i=0; i<file_list.length; i++) {
-					let i_ = i;
-					setTimeout(function() {
-						Array.from(document.getElementsByClassName("home-tweet-box tweet-box component tweet-user")[0].getElementsByTagName("input")).filter(function(inp) { return inp.type=="file"})[0].files = fileListFromFile(file_list[i_])
-					}, i*50);
-				}
+			document.activeElement.innerText = getSocialHeadline();
+			
+			let file_list = video_filelist || imgs_filelist
+			console.log(file_list)
+			for(var i=0; i<file_list.length; i++) {
+				let i_ = i;
+				setTimeout(function() {
+					Array.from(document.getElementsByClassName("home-tweet-box tweet-box component tweet-user")[0].getElementsByTagName("input")).filter(function(inp) { return inp.type=="file"})[0].files = fileListFromFile(file_list[i_])
+				}, i*50);
+			}
+			
+			wait(function thumbnailAppeared() {
+				return window.getComputedStyle( document.getElementsByClassName("timeline-tweet-box")[0].getElementsByClassName("TweetBoxAttachments")[0] ).display != "none"
+			}, function() {
+				//document.getElementsByClassName("timeline-tweet-box")[0].getElementsByClassName("tweet-button")[0].children[1].click();
+				setTimeout(function() {
+					simulateCtrlEnter(function(){})
+				}, 2000); // NEED timeout or else image posting glitches and only posts 1 for some reason
 				
-				wait(function thumbnailAppeared() {
-					return window.getComputedStyle( document.getElementsByClassName("timeline-tweet-box")[0].getElementsByClassName("TweetBoxAttachments")[0] ).display != "none"
+				wait(function finishedUploading() {
+					// check if tweet toolbar buttons still there, if not it's done uploading & posting all
+					return window.getComputedStyle(document.getElementsByClassName("timeline-tweet-box")[0].getElementsByClassName("TweetBoxToolbar")[0]).display == "none"
 				}, function() {
-					//document.getElementsByClassName("timeline-tweet-box")[0].getElementsByClassName("tweet-button")[0].children[1].click();
+					// all done w/ tweet
 					setTimeout(function() {
-						simulateCtrlEnter(function(){})
-					}, 2000); // NEED timeout or else image posting glitches and only posts 1 for some reason
-					
-					wait(function finishedUploading() {
-						// check if tweet toolbar buttons still there, if not it's done uploading & posting all
-						return window.getComputedStyle(document.getElementsByClassName("timeline-tweet-box")[0].getElementsByClassName("TweetBoxToolbar")[0]).display == "none"
-					}, function() {
-						// all done w/ tweet
-						setTimeout(function() {
-							chrome.runtime.sendMessage({closeThis: true});
-						}, 1000);
-					}, -1, 2000);
-					
-				}, -1);
-			});
+						chrome.runtime.sendMessage({closeThis: true});
+					}, 1000);
+				}, -1, 2000);
+				
+			}, -1);
 		});
 	}, 1000);
 }

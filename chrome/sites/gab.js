@@ -76,11 +76,6 @@ function doPageSpecific() {
 function makeGabPost() {
 	console.log("in makeGabPost()")
 	
-	// append the video link if enabled & one was set
-	var appendLink = getVideoLink();
-	if(appendLink)
-		appendLink = " "+appendLink;
-	
 	console.log(document.getElementById("tinymce"));
-	document.getElementById("tinymce").children[0].innerText = video_info.headline + appendLink;
+	document.getElementById("tinymce").children[0].innerText = getSocialHeadline();
 }

@@ -19,15 +19,18 @@ function importFilesFromStorage() {
 		
 		wait(function postBoxAppear() { return !! Array.from(document.getElementsByTagName("textarea")).length > 0 }, function() {
 			document.getElementsByTagName("textarea")[0].focus();
+			document.getElementsByTagName("textarea")[0].value = getSocialHeadline();
 			
-			simulateTypeText(getSocialHeadline(), function() {
-				// minds does not autoplay videos, might as well post full
-				if(getSocialPostType() == "video" && !getVideoLink())
-					setTimeout(uploadVideo, 1000);
-				else if(getSocialPostType() == "images")
-					setTimeout(uploadVideo, 1000);
-				else
-					publishPost();
+			simulateTypeText(" ", function() {
+				simulateBackspace(function() { // need type space at end and backspace or doesn't work for some reason
+					// minds does not autoplay videos, might as well post full
+					if(getSocialPostType() == "video" && !getVideoLink())
+						setTimeout(uploadVideo, 1000);
+					else if(getSocialPostType() == "images")
+						setTimeout(uploadVideo, 1000);
+					else
+						publishPost();
+				});
 			});
 		}, -1);
 		//wait(function waitTextboxShow() { return !! document.getElementById("tweet-box-home-timeline").childNodes[0] }, uploadVideo, -1);
