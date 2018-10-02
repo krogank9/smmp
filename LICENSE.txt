@@ -1,0 +1,3 @@
+All code in this repository Copyright Logan Krumbhaar 2018 All Rights Reserved.
+
+Source code is provided for the purpose of transparency and security.
