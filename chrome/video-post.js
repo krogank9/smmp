@@ -45,24 +45,8 @@ $("facebook_page_url").onchange = function() {
 	}
 }
 
-$("video_tags_input").tagsChanged = $("title_input").oninput = function() {
-	// set social headline when title & tags are changed
-	var headline = $("title_input").value.trim();
-	var tags = $("video_tags_input").getTags().filter(tag => !tag.includes(" ") && !tag.includes(",")).filter(onlyUnique).map(t => "#" + t)
-	if (tags.length > 0)
-		headline += " " + tags.join(" ");
-		
-	while(headline.length > 230) {
-		// remove last word
-		headline = headline.split(" ")
-		if(headline.length > 1)
-			headline = headline.slice(0,headline.length-1).join(" ")
-		else {
-			headline = headline.join(" ")
-			break;
-		}
-	}
-	$("social_headline").value = headline + " Full vid:"
+_G("title_input").oninput = function() {
+	_G("social_headline").value = _G("title_input").value.trim()
 }
 
 function addSocialPreviewImg(url, name) {

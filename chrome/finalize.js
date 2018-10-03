@@ -12,11 +12,11 @@ function saveVidInfoToStorage(cb, clearVidLinks) {
 			social_imgs_ = null
 		
 		var info_dict = {
-			title: $("title_input").value,
-			description: $("description_textarea").value,
+			title: $("title_input").value.trim(),
+			description: $("description_textarea").value.trim(),
 			tags: $("video_tags_input").getTags(),
 			category: $("video_category").value,
-			headline: $("social_headline").value,
+			headline: _G("social_headline").value,
 			
 			fb_page_full_vid: _G("fb_page_full_vid").checked,
 			
@@ -36,6 +36,8 @@ function saveVidInfoToStorage(cb, clearVidLinks) {
 			share_to_gplus: $("share_to_gplus").checked,
 		}
 		
+		video_info = info_dict;
+		
 		if(debug_video_link) {
 			info_dict.youtube_video_link = debug_video_link;
 		}
@@ -53,10 +55,11 @@ function saveVidInfoToStorage(cb, clearVidLinks) {
 }
 
 var open_upload_tab_ids = {};
-function tabOpened(id, status_box_, postFunc_) {
+function tabOpened(id, status_box_, postFunc_, successCallback_) {
 	open_upload_tab_ids[id] = {
 		status_box: status_box_,
-		postFunc: postFunc_
+		postFunc: postFunc_,
+		successCallback: successCallback_
 	}
 	
 	let postFunc__ = postFunc_;
@@ -94,6 +97,8 @@ function tabClosed(id, success, postFunc) {
 	
 	if(success) {
 		open_upload_tab_ids[id].status_box.showSuccess();
+		if(open_upload_tab_ids[id].successCallback)
+			open_upload_tab_ids[id].successCallback();
 	}
 	if(success === false && postFunc) {
 		let statusBox = open_upload_tab_ids[id].status_box;
@@ -105,6 +110,13 @@ function tabClosed(id, success, postFunc) {
 	
 	delete open_upload_tab_ids[id];
 }
+
+function postFuncToSiteName(func) {
+	if(func == postToYouTube) return "youtube"
+	else if(func == postToBitChute) return "bitchute"
+	else return ""
+}
+
 function checkTabPrematureClose() {
 	let calledPostAgain = false;
 	
@@ -122,10 +134,21 @@ function checkTabPrematureClose() {
 				let statusBox = open_upload_tab_ids[str_tab_id].status_box;
 				tabClosed(str_tab_id, false, postFunc)
 				
-				// restart loop where left off
-				if(!calledPostAgain) {
-					calledPostAgain = true;
+				var postFuncNames = {
+					postToYouTube: "youtube",
+					postToBitChute: "bitchute"
+				}
+				
+				// restart loop where left off, unless it stopped on the site which social links to
+				if(!calledPostAgain && postFuncToSiteName(postFunc) != video_info.video_to_link) {
+					calledPostAgain = true; // make sure not call post multiple times when looping closed tabs
 					postEverywhere();
+				}
+				else if (postFuncToSiteName(postFunc) == video_info.video_to_link) {
+					chrome.tabs.getCurrent(function(tab){
+						chrome.tabs.update(tab.id, {active:true});
+					});
+					alert("Could not post to video site used for social links. Please retry "+video_info.video_to_link+" to continue.");
 				}
 				return;
 			}
@@ -184,6 +207,16 @@ function openUploadTab(url, script, cb) {
 
 //vid
 
+function postToRealVideo() {
+	if(!$("post_realvideo").checked) {
+		postEverywhere();
+		return
+	}
+	console.log("posting to real.video")
+	openUploadTab("https://www.real.video/dashboard/upload", "sites/realvideo.js", function(tab){
+		tabOpened(tab.id, _G("status_realvideo"), postToRealVideo);
+	})
+}
 function postToBitTube() {
 	if(!$("post_bittube").checked) {
 		postEverywhere();
@@ -249,7 +282,7 @@ function postToVimeo() {
 	}
 	console.log("posting to Vimeo")
 	openUploadTab("https://vimeo.com/upload", "sites/vimeo.js", function(tab){
-		tabOpened(tab.id, _G("status_vimeo"), postToVimeo);
+		tabOpened(tab.id, _G("status_vimeo"), postToVimeo, function() {vid_post_queue.unshift(postVimeoThumb)});
 	})
 }
 function postToDTube() {
@@ -302,6 +335,16 @@ var social_vid_imgs = [];
 var processing_social_vid_clip = false;
 var done_processing_social_vid = false;
 
+function postToTumblr() {
+	if(!$("post_tumblr").checked) {
+		postEverywhere();
+		return
+	}
+	console.log("posting to Tumblr")
+	openUploadTab("https://www.tumblr.com/dashboard/", "sites/tumblr.js", function(tab){
+		tabOpened(tab.id, _G("status_tumblr"), postToTumblr);
+	})
+}
 function postToTwitter() {
 	if(!$("post_twitter").checked) {
 		postEverywhere();
@@ -367,15 +410,16 @@ function postToSteemit() {
 */
 
 function anySocialChecked() {
-	return ( $("post_facebook_page").checked && ! _G("fb_page_full_vid").checked )
-		|| $("post_facebook_personal").checked
-		|| $("post_minds").checked
-		|| $("post_gab").checked
-		|| $("post_twitter").checked
+	return ( _G("post_facebook_page").checked && ! _G("fb_page_full_vid").checked )
+		|| _G("post_facebook_personal").checked
+		|| _G("post_minds").checked
+		|| _G("post_gab").checked
+		|| _G("post_twitter").checked
+		|| _G("post_tumblr").checked
 }
 
-var vid_post_queue = [postToYouTube, postToBitChute, postToDailymotion, postToVimeo, postVimeoThumb, postToTopbuzz, postToMetacafe, postToBitTube];
-var social_post_queue = [postToTwitter, postToGab, postToMinds, postToFacebookPersonal, postToFacebookPage];
+var vid_post_queue = [postToYouTube, postToBitChute, postToDailymotion, postToVimeo, postToTopbuzz, postToMetacafe, postToBitTube, postToRealVideo];
+var social_post_queue = [postToTwitter, postToGab, postToMinds, postToFacebookPersonal, postToFacebookPage, postToTumblr];
 var last_post_queue = [postToDTube]
 
 var saved_social_vid = false;
@@ -414,6 +458,7 @@ function postEverywhere() {
 		}, function cb() {
 			if(!saved_social_vid) {
 				saved_social_vid = true;
+				// save vid again for socials before post
 				saveVidInfoToStorage(function() {
 					(social_post_queue.shift())()
 				});

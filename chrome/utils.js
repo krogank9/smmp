@@ -31,6 +31,11 @@ function simulateTypeText(text_, cb) {
 			setTimeout(cb, 2500);
 	}
 }
+function simulateTypeAndBackspace(cb) {
+	simulateTypeText(" ", function() {
+		simulateBackspace(cb);
+	});
+}
 function simulateBackspace(cb) {
 	chrome.runtime.sendMessage({simulateBackspace:true});
 	setTimeout(cb, 500);
@@ -52,11 +57,34 @@ function simulateHover(x_,y_) {
 	chrome.runtime.sendMessage({simulateHover:true, x:x_, y:y_});
 }
 
-function getSocialHeadline() {
+function getSocialHeadline(charLimit) {
+	if(!charLimit && charLimit !== 0)
+		charLimit = 1000;
+	
+	var tags = video_info.tags.filter(tag => !tag.includes(" ")).filter(onlyUnique).map(t=>" #"+t);
+	
 	var appendLink = getVideoLink();
-	if(appendLink && appendLink.length > 0)
-		appendLink = " "+appendLink;
-	return (video_info.headline + appendLink).trim();
+	if(appendLink)
+		appendLink = "Full vid: "+appendLink;
+		
+	var tags_str = "";
+	var remain_space = charLimit;
+	remain_space -= appendLink.length;
+	remain_space -= video_info.headline.length;
+	console.log("remain_space: "+remain_space);
+	while(remain_space > 0) {
+		while(tags.length > 0) {
+			var to_add = tags.shift();
+			if(to_add.length <= remain_space) {
+				tags_str += to_add;
+				remain_space -= to_add.length;
+			}
+		}
+		if(tags.length == 0)
+			break;
+	}
+	
+	return video_info.headline + tags_str + appendLink;
 }
 
 function onFbPage() {

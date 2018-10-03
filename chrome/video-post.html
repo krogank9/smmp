@@ -187,6 +187,7 @@ form input{
 				<input type="checkbox" id="post_topbuzz"> TopBuzz <span id="status_topbuzz" class="site_status_span"></span> <br>
 				<input type="checkbox" id="post_metacafe"> Metacafe (no links allowed, description omitted) <span id="status_metacafe" class="site_status_span"></span> <br>
 				<input type="checkbox" id="post_bittube"> Bit.Tube <span id="status_bittube" class="site_status_span"></span> <br>
+				<input type="checkbox" id="post_realvideo"> real.video <span id="status_realvideo" class="site_status_span"></span> <br>
 				<input type="checkbox" id="post_dtube"> DTube (Uploaded last, after social sites due to IPFS queue wait time.) <span id="status_dtube" class="site_status_span"></span> <br>
 				<div id="video_disabled_overlay" style="position: absolute; width: 100%; height: 100%; left: 0; top: 0; background-image: url('img/caution.png'); z-index: 999;">
 					<span style="text-align: center; position: absolute; top: 50%; left: 50%; transform: translateY(-50%) translateX(-50%)">
@@ -205,6 +206,7 @@ form input{
 			<input type="checkbox" id="post_twitter"> Twitter <span id="status_twitter" class="site_status_span"></span> <br>
 			<input type="checkbox" id="post_gab"> Gab <span id="status_gab" class="site_status_span"></span> <br>
 			<input type="checkbox" id="post_minds"> Minds <span id="status_minds" class="site_status_span"></span> <br>
+			<input type="checkbox" id="post_tumblr"> Tumblr <span id="status_tumblr" class="site_status_span"></span> <br>
 			<input type="checkbox" id="post_facebook_personal"> Facebook (Personal) <span id="status_facebook_personal" class="site_status_span"></span> <br>
 			<input type="checkbox" id="post_facebook_page"> Facebook Page: <input type="textbox" placeholder="Page URL" id="facebook_page_url" spellcheck="false"/> <span id="status_facebook_page" class="site_status_span"></span> <input type="checkbox" id="fb_page_full_vid"> Upload full vid instead of clip <br>
 			<input type="checkbox" id="share_to_gplus"> Share to Google Plus (via YouTube only) <span id="status_gplus" class="site_status_span"></span> <br>
@@ -232,12 +234,20 @@ form input{
 			
 			<br>
 			
-			Headline:
+			Headline for social media:
 
 			<br><br>
 			
 			<textarea id="social_headline" rows=3 style="width:100%" maxlength="230"></textarea>
 			
+			<br>
+			<br>
+			
+			Video tags from Step 1 will be used as hashtags.
+			<br>
+			Leave some space if you want hashtags on character limited sites like Twitter.
+			
+			<br>
 			<br>
 			
 			Video link to append to social post:
@@ -361,7 +371,7 @@ form input{
 
 			<br><br>
 
-			<textarea id="description_textarea" rows=5 style="width:100%" maxlength="1000"></textarea>
+			<textarea id="description_textarea" rows=5 style="width:100%" maxlength="500"></textarea>
 
 			<br><br>		
 			
