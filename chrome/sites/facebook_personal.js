@@ -83,7 +83,7 @@ function uploadImages() {
 							}, 2500);
 						});
 					});
-				});
+				}, -1, 1000);
 			}, 3000);
 		});
 	}, 500);
@@ -111,7 +111,7 @@ function uploadVideo() {
 				if(!uploads_box)
 					return false;
 					
-				return uploads_box.children[0].children[0].getAttribute("data-testid") == "media-attachment-video";
+				return Array.from(document.getElementById("pagelet_composer").getElementsByClassName("fbScrollableAreaContent")[0].getElementsByTagName("span")).some(s=>s.innerText.includes(":"));
 			}, function finishPublishVideo() {
 				// press share
 				Array.from(document.getElementById("pagelet_composer").getElementsByTagName("button")).filter(b=>b.type =="submit").slice(-1)[0].click();
@@ -121,8 +121,8 @@ function uploadVideo() {
 					return !! Array.from(document.getElementsByTagName("div")).filter(d=>d.getAttribute("role") == "dialog" && d.children[0] && d.children[0].getAttribute("data-testid")=="video_processing_dialog")[0];
 				}, function() {
 					chrome.runtime.sendMessage({closeThis: true});
-				});
-			});
+				}, -1, 1000);
+			}, -1, 2500);
 		}, 2500);
 	}, 500);
 }

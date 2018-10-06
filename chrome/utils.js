@@ -15,21 +15,52 @@ function simulateEnterPress(el) {
 }
 
 function getVideoLink() {
-	if(video_info.video_to_link == "youtube")
+	if(video_info.video_to_link == "youtube") {
+		console.log(video_info)
+		console.log("youtube video link: "+video_info.youtube_video_link)
 		return video_info.youtube_video_link || "";
-	else
+	}
+	else {
 		return video_info.bitchute_video_link || "";
+	}
 }
 
+// maintain focus while typing
+var alreadyUpdatingForceFocus_ = false;
+var forceFocusElement = null;
+function updateForceFocusElement_() {
+	if(forceFocusElement != null && document.activeElement != forceFocusElement) {
+		forceFocusElement.focus();
+	}
+	setTimeout(updateForceFocusElement_, 2);
+}
+function setForceFocusElement(elem) {
+	forceFocusElement = elem;
+	elem.focus();
+	
+	// tumblr and others unfocus with popups sometimes the instant you click textbox.
+	// try to circumvent this using these force focus functions
+	setTimeout(function(){if(document.activeElement != elem) elem.focus();},0);
+	setTimeout(function(){if(document.activeElement != elem) elem.focus();},1);
+	
+	if(!alreadyUpdatingForceFocus_) {
+		alreadyUpdatingForceFocus_ = true;
+		updateForceFocusElement_();
+	}
+}
+function clearForceFocusElement() {
+	forceFocusElement = null;
+}
+
+function simulateClearTypeText(text_, cb) {
+	simulateClearTextbox(function() {
+		simulateTypeText(text_, cb);
+	});
+}
 function simulateTypeText(text_, cb) {
 	chrome.runtime.sendMessage({simulateTyping:true, text:text_});
-	if(cb) {
-		// wait 500 ms for every 50 chars
-		if(text_.length < 50)
-			setTimeout(cb, 500);
-		else
-			setTimeout(cb, 2500);
-	}
+	// wait shorter if small text
+	setTimeout(cb||function(){}, text_.length < 50? 500:2500);
 }
 function simulateTypeAndBackspace(cb) {
 	simulateTypeText(" ", function() {
@@ -65,11 +96,12 @@ function getSocialHeadline(charLimit) {
 	
 	var appendLink = getVideoLink();
 	if(appendLink)
-		appendLink = "Full vid: "+appendLink;
+		appendLink = " Full vid: "+appendLink;
 		
 	var tags_str = "";
 	var remain_space = charLimit;
 	remain_space -= appendLink.length;
+	remain_space -= 1; // for \n after headline
 	remain_space -= video_info.headline.length;
 	console.log("remain_space: "+remain_space);
 	while(remain_space > 0) {
@@ -84,7 +116,7 @@ function getSocialHeadline(charLimit) {
 			break;
 	}
 	
-	return video_info.headline + tags_str + appendLink;
+	return (video_info.headline + appendLink + "\n" + tags_str.trim()).trim();
 }
 
 function onFbPage() {
@@ -425,7 +457,7 @@ function getOptimalSize(ctx, txt, fontName, tolerance, style) {
     fontName = (fontName === undefined) ? 'sans-serif' : fontName;
     style = (style === undefined) ? '' : style + ' ';
 
-    var w = ctx.canvas.width*0.97,
+    var w = ctx.canvas.width*0.8,
         h = ctx.canvas.height,
         current = h,
         i = 0,

@@ -16,7 +16,7 @@ function saveVidInfoToStorage(cb, clearVidLinks) {
 			description: $("description_textarea").value.trim(),
 			tags: $("video_tags_input").getTags(),
 			category: $("video_category").value,
-			headline: _G("social_headline").value,
+			headline: _G("social_headline").value.trim(),
 			
 			fb_page_full_vid: _G("fb_page_full_vid").checked,
 			
@@ -35,8 +35,6 @@ function saveVidInfoToStorage(cb, clearVidLinks) {
 			
 			share_to_gplus: $("share_to_gplus").checked,
 		}
-		
-		video_info = info_dict;
 		
 		if(debug_video_link) {
 			info_dict.youtube_video_link = debug_video_link;

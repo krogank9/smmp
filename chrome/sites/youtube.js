@@ -24,8 +24,8 @@ function onlyUnique(value, index, self) {
 }
 
 // 0. wait for everything to be loaded
-//wait( function waitLoad() {return !!document.getElementById("fileupload")}, importFilesFromStorage, 10000 );
-importFilesFromStorage();
+wait( function waitLoad() {return !! Array.from(document.getElementById("upload-prompt-box").getElementsByTagName("input")).filter(inp => inp.type=="file")[0]}, importFilesFromStorage, 10000 );
+//importFilesFromStorage();
 
 // 1. get all files imported
 function importFilesFromStorage() {
@@ -59,7 +59,7 @@ function addYouTubeTag(name) {
 function setBasicVidInfo() {	
 	document.getElementsByClassName("yt-uix-form-input-text video-settings-title")[0].value = video_info.title;
 	
-	var tags_short = video_info.tags.filter(tag => !tag.includes(" ") && !tag.includes(",")).filter(onlyUnique).slice(0,3).join(" #")
+	var tags_short = video_info.tags.filter(tag => !tag.includes(" ") && !tag.includes(",")).filter(onlyUnique).slice(0,3).map(t=>"#"+t).join(" ")
 	if(tags_short.length > 0)
 		tags_short = "\n\n" + tags_short
 	
@@ -100,11 +100,13 @@ function setAdvancedVidInfo() {
 			setTimeout(function() {
 				video_info.youtube_video_link = simplifyUrl(document.getElementsByClassName("watch-page-link")[0].children[0].innerText);
 				chrome.storage.local.set({"vid_info": video_info}, function(){
+					console.log("saved")
+					console.log(video_info)
 					publishButton.click()
 					// wait for "saving..." text to be gone
 					setTimeout(function() {
 						chrome.runtime.sendMessage({closeThis: true});
-					}, 500);
+					}, 1000);
 				});
 			}, 500);
 		}, -1, 3000);

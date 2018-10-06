@@ -25,6 +25,8 @@ wait( function waitLoad() {return !! document.getElementById("title")}, importFi
 function importFilesFromStorage() {
 	console.log("loading files")
 	
+	Array.from(document.getElementsByTagName("button")).filter(b=>b.getAttribute("format")=="alternative" && b.parentElement.parentElement.tagName.toLowerCase()=="a")[0].click()
+	
 	loadVidInfoFromStorage_Video(function() {
 		console.log("all files loaded");
 		

@@ -19,7 +19,8 @@ function onlyUnique(value, index, self) {
 }
 
 // 0. wait for everything to be loaded
-importFilesFromStorage();
+wait( function waitLoad() {return !! Array.from(document.getElementsByTagName("input")).filter(i=>i.type=="file")[0]}, importFilesFromStorage, 10000 );
+//importFilesFromStorage();
 
 // 1. get all files imported
 function importFilesFromStorage() {

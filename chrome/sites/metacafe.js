@@ -28,7 +28,7 @@ else if (window.location.href.includes("metacafe.com/?login")) {
 		setTimeout(function() {
 			Array.from(document.getElementsByTagName("button")).filter(b=>b.type=="submit")[0].click()
 		}, 2000);
-	}, 1000);
+	}, 4000);
 }
 else {
 	setTimeout(function() {

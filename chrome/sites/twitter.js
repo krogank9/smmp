@@ -60,16 +60,11 @@ function makeTextPost() {
 function uploadVideo() {
 	console.log("in uploadVideo()")
 	
-	// append the video link if enabled & one was set
-	var appendLink = getVideoLink();
-	if(appendLink && appendLink.length > 0)
-		appendLink = " "+appendLink;
-		
 	document.getElementsByClassName("tweet-box rich-editor")[0].focus();
 	
 	setTimeout(function() {
 		simulateClearTextbox(function() {
-			document.activeElement.innerText = getSocialHeadline();
+			document.activeElement.innerText = getSocialHeadline(280);
 			
 			let file_list = video_filelist || imgs_filelist
 			console.log(file_list)
