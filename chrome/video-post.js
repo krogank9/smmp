@@ -29,7 +29,7 @@ chrome.storage.local.get(["closed_tut_once"], function(result) {
 });
 //////////
 
-$("facebook_page_url").onchange = function() {
+_G("facebook_page_url").onchange = function() {
 	var s = this.value;
 	if (s.includes("facebook.com/")) {
 		s = s.substring(s.indexOf("facebook.com/"));
@@ -99,29 +99,29 @@ function addSocialPreviewImg(url, name) {
 }
 
 function setStep(num) {
-	$("step1_card").classList.remove("selected")
-	$("step2_card").classList.remove("selected")
-	$("step3_card").classList.remove("selected")
+	_G("step1_card").classList.remove("selected")
+	_G("step2_card").classList.remove("selected")
+	_G("step3_card").classList.remove("selected")
 	
-	$("step1").style.display = num==1?"block":"none";
+	_G("step1").style.display = num==1?"block":"none";
 	if(num==1)
-		$("step1_card").classList.add("selected")
+		_G("step1_card").classList.add("selected")
 	
-	$("step2").style.display = num==2?"block":"none";
+	_G("step2").style.display = num==2?"block":"none";
 	if(num==2)
-		$("step2_card").classList.add("selected")
+		_G("step2_card").classList.add("selected")
 	
-	$("step3").style.display = num==3?"block":"none";
+	_G("step3").style.display = num==3?"block":"none";
 	if(num==3)
-		$("step3_card").classList.add("selected")
+		_G("step3_card").classList.add("selected")
 	
-	$("social_vid").pause();
-	$("thumbnail_vid").pause();
+	_G("social_vid").pause();
+	_G("thumbnail_vid").pause();
 }
 
-$("step1_card").onclick = function() { setStep(1) }
-$("step2_card").onclick = function() { setStep(2) }
-$("step3_card").onclick = function() { setStep(3) }
+_G("step1_card").onclick = function() { setStep(1) }
+_G("step2_card").onclick = function() { setStep(2) }
+_G("step3_card").onclick = function() { setStep(3) }
 
 getClass("goto_step1").forEach(function(c){c.onclick = function() {
 	setStep(1);
@@ -135,16 +135,16 @@ getClass("goto_step3").forEach(function(c){c.onclick = function() {
 
 _G("social_preview_select").onchange = function() {
 	if(this.value == "Clip") {
-		$("social_vid_preview").style.display = "block"
-		$("social_image_preview").style.display = "none"
+		_G("social_vid_preview").style.display = "block"
+		_G("social_image_preview").style.display = "none"
 	}
 	else if(this.value == "Images"){
-		$("social_vid_preview").style.display = "none"
-		$("social_image_preview").style.display = "block"
+		_G("social_vid_preview").style.display = "none"
+		_G("social_image_preview").style.display = "block"
 	}
 	else {
-		$("social_vid_preview").style.display = "none"
-		$("social_image_preview").style.display = "none"
+		_G("social_vid_preview").style.display = "none"
+		_G("social_image_preview").style.display = "none"
 	}
 }
 document.addEventListener("DOMContentLoaded", function(){
@@ -264,15 +264,20 @@ function drawThumbnailCanvas() {
 	var font_color = _G("thumbnail_font_color").value
 	var shadow_color = _G("thumbnail_font_shadow").value;
 	
+	var double = false;
+	
 	// shadow
-	if(shadow_color == "match")
+	if(shadow_color.endsWith("match")) {
+		if(shadow_color.startsWith("dark") || shadow_color.startsWith("bright"))
+			double = true;
 		shadow_color = font_color;
+	}
 		
 	if (shadow_color != "none") {
-		var double = false;
 		if(shadow_color.startsWith("dark ") || shadow_color.startsWith("bright ")) {
 			double = true;
-			shadow_color = shadow_color.split(" ")[1];
+			if(shadow_color != font_color)
+				shadow_color = shadow_color.split(" ")[1];
 		}
 		ctx.fillStyle = shadow_color;
 		ctx.filter = "blur("+(font_size/25)+"px)";
@@ -335,9 +340,11 @@ file_input.onchange = function(evt) {
 	if(!file)
 		return;
 	
-	$("video_disabled_overlay").style.display = "none";
+	_G("video_disabled_overlay").style.display = "none";
 	
 	_G("file_input_text").innerHTML = "Uploaded file: <b>"+file.name+"</b>";
+	
+	window.needNewThumb = true;
 	
 	vid_file_name = file.name;
 	vid_blob = new Blob([file]);
@@ -348,37 +355,10 @@ file_input.onchange = function(evt) {
 	getId("thumbnail_vid").addEventListener( "loadedmetadata", function (e) {		
 		this.currentTime = this.duration/2;
 }, false );
-	getId("social_vid").addEventListener( "loadedmetadata", function (e) {		
-		//this.currentTime = this.duration/2;
-}, false );
 	getId("thumbnail_vid").onseeked = function() {
-		if (thumbnail_img == null) {
+		if (window.needNewThumb) {
+			window.needNewThumb = false;
 			getId("grab_frame_thumbnail").click();
 		}
 	}
-	//getId("thumbnail_vid").play();
-	
-	return;
-	
-	saveFileToStorageChunked(file, "myFile", function() {
-		//send message to be received by bitchute tab
-		chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-			chrome.tabs.sendMessage(tabs[0].id, {contents: "fileReady"}, function(response) {
-				console.log("sent fileReady")
-			});
-		});
-	});
-
-/*
-	console.log("starting save...")
-	saveFileToStorageChunked(file, "fileMy", function() {
-		console.log("starting load...")
-		loadFileFromStorageChunked("fileMy", function(file_list) {
-			file_input2.files = file_list;
-			file_input2.files = file_input.files;
-			saveFile(file_list[0].name, file_list[0].type, file_list[0])
-			//console.log('aaa')
-		});
-	});
-*/
 }

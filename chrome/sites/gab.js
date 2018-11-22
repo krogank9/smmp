@@ -55,18 +55,18 @@ function doPageSpecific() {
 			
 			wait(function composerFrameAppear() { return Array.from(document.getElementsByTagName("iframe")).filter(i => i.id && i.id.startsWith("post-composer")).length > 0 }, function() {
 				console.log("injecting to subframes")
-				injectToSubframes();
-			}, -1)
-		}, -1);
+				setTimeout(function(){
+					injectToSubframes();
+				}, 1000);
+			}, 10000)
+		}, 10000);
 	}
 	// bottom level iframe where text is typed
 	else {
 		console.log('aa')
 		wait(function tinyMceAppear() { return !! document.getElementById("tinymce") }, function() {
-			console.log("all files loaded");
-			
 			makeGabPost();
-		}, -1, 1000);
+		}, 10000);
 	}
 	
 
@@ -77,5 +77,8 @@ function makeGabPost() {
 	console.log("in makeGabPost()")
 	
 	console.log(document.getElementById("tinymce"));
-	document.getElementById("tinymce").children[0].innerText = getSocialHeadline();
+	wait(function tinyMceAppear() { return !! document.getElementById("tinymce").children[0] }, function() {
+		document.getElementById("tinymce").children[0].focus();
+		document.getElementById("tinymce").children[0].innerText = getSocialHeadline();
+	}, 10000, 150);
 }

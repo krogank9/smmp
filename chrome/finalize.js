@@ -6,16 +6,16 @@ function saveVidInfoToStorage(cb, clearVidLinks) {
 		video_info = result["vid_info"] || {};
 		
 		// may need URL createObjectURL
-		var social_imgs_ = Array.from(_G("social_image_preview").getElementsByTagName("img")).map((i) => i.src);
-		var social_imgs_names_ = Array.from(_G("social_image_preview").getElementsByTagName("img")).map((i) => i.fileName);
+		var social_imgs_ = Array.from(_G("social_image_preview").getElementsByTagName("img")).reverse().map(convertImgToJpgUrl);
+		var social_imgs_names_ = Array.from(_G("social_image_preview").getElementsByTagName("img")).map((i) => i.fileName.split(".")[0]+"_.jpg");
 		if(social_imgs_.length == 0 || _G("social_preview_select").value == "None")
 			social_imgs_ = null
 		
 		var info_dict = {
-			title: $("title_input").value.trim(),
-			description: $("description_textarea").value.trim(),
-			tags: $("video_tags_input").getTags(),
-			category: $("video_category").value,
+			title: _G("title_input").value.trim(),
+			description: _G("description_textarea").value.trim(),
+			tags: _G("video_tags_input").getTags(),
+			category: _G("video_category").value,
 			headline: _G("social_headline").value.trim(),
 			
 			fb_page_full_vid: _G("fb_page_full_vid").checked,
@@ -27,13 +27,12 @@ function saveVidInfoToStorage(cb, clearVidLinks) {
 			upload_vid_file_name: vid_file_name,
 			
 			social_vid_url: social_vid_clip? URL.createObjectURL(social_vid_clip) : null,
+			social_vid_url_insta: social_vid_clip_insta? URL.createObjectURL(social_vid_clip_insta) : null,
 			
 			social_imgs_urls: social_imgs_,
 			social_imgs_file_names: social_imgs_names_,
 			
-			video_to_link: $("video_to_link").value,
-			
-			share_to_gplus: $("share_to_gplus").checked,
+			video_to_link: _G("video_to_link").value,
 		}
 		
 		if(debug_video_link) {
@@ -53,7 +52,9 @@ function saveVidInfoToStorage(cb, clearVidLinks) {
 }
 
 var open_upload_tab_ids = {};
+var isOpeningTab = false;
 function tabOpened(id, status_box_, postFunc_, successCallback_) {
+	
 	open_upload_tab_ids[id] = {
 		status_box: status_box_,
 		postFunc: postFunc_,
@@ -116,6 +117,9 @@ function postFuncToSiteName(func) {
 }
 
 function checkTabPrematureClose() {
+	if(isOpeningTab) // don't check premature close if in the middle of opening a tab
+		return;
+	
 	let calledPostAgain = false;
 	
 	var keys = Object.keys(open_upload_tab_ids);
@@ -171,6 +175,7 @@ function persistInjectTab(id, siteFile) {
 				return;
 			else if(tab.url != curUrl_) {
 				curUrl_ = tab.url;
+				console.log("CHANGED: "+tab.url);
 				
 				// inject scripts
 				chrome.tabs.executeScript(id_, {file: "utils.js", allFrames:false}, function() {
@@ -192,7 +197,13 @@ function persistInjectTab(id, siteFile) {
 }
 
 function openUploadTab(url, script, cb) {
+	isOpeningTab = true;
 	chrome.tabs.create({url: url, active: false},function(tab) {
+		if(chrome.runtime.lastError) {
+			isOpeningTab = false;
+			return;
+		}
+		
 		// need to set active after creation so it doesn't steal window focus.
 		// so you can go into another browser window and work while it is automating
 		chrome.tabs.update(tab.id, {active:true});
@@ -200,23 +211,25 @@ function openUploadTab(url, script, cb) {
 		
 		if(cb)
 			cb(tab);
+			
+		isOpeningTab = false;
 	});
 }
 
 //vid
 
 function postToRealVideo() {
-	if(!$("post_realvideo").checked) {
+	if(!_G("post_realvideo").checked) {
 		postEverywhere();
 		return
 	}
 	console.log("posting to real.video")
-	openUploadTab("https://www.real.video/dashboard/upload", "sites/realvideo.js", function(tab){
+	openUploadTab("https://www.brighteon.com/dashboard/upload", "sites/realvideo.js", function(tab){
 		tabOpened(tab.id, _G("status_realvideo"), postToRealVideo);
 	})
 }
 function postToBitTube() {
-	if(!$("post_bittube").checked) {
+	if(!_G("post_bittube").checked) {
 		postEverywhere();
 		return
 	}
@@ -226,7 +239,7 @@ function postToBitTube() {
 	})
 }
 function postToMetacafe() {
-	if(!$("post_metacafe").checked) {
+	if(!_G("post_metacafe").checked) {
 		postEverywhere();
 		return
 	}
@@ -236,7 +249,7 @@ function postToMetacafe() {
 	})
 }
 function postToTopbuzz() {
-	if(!$("post_topbuzz").checked) {
+	if(!_G("post_topbuzz").checked) {
 		postEverywhere();
 		return
 	}
@@ -246,7 +259,7 @@ function postToTopbuzz() {
 	})
 }
 function postVimeoThumb() {
-	if(!$("post_vimeo").checked) {
+	if(!_G("post_vimeo").checked) {
 		postEverywhere();
 		return
 	}
@@ -265,7 +278,7 @@ function postVimeoThumb() {
 		vid_id.pop();
 		vid_id = vid_id.pop(); // fmt: "https://vimeo.com/user89495732/review/289892675/a3e676cedf" need 2nd to last
 		
-		var edit_link = "https://vimeo.com/manage/____/v2/general".replace("____", vid_id);
+		var edit_link = "https://vimeo.com/manage/____/general".replace("____", vid_id);
 		
 		console.log("setting Vimeo thumbnail")
 		openUploadTab(edit_link, "sites/vimeo_thumb.js", function(tab){
@@ -274,7 +287,7 @@ function postVimeoThumb() {
 	});
 }
 function postToVimeo() {
-	if(!$("post_vimeo").checked) {
+	if(!_G("post_vimeo").checked) {
 		postEverywhere();
 		return
 	}
@@ -284,7 +297,7 @@ function postToVimeo() {
 	})
 }
 function postToDTube() {
-	if(!$("post_dtube").checked) {
+	if(!_G("post_dtube").checked) {
 		postEverywhere();
 		return
 	}
@@ -304,7 +317,7 @@ function postToDailymotion() {
 	}) 
 }
 function postToBitChute() {
-	if(!$("post_bitchute").checked) {
+	if(!_G("post_bitchute").checked) {
 		postEverywhere();
 		return
 	}
@@ -314,7 +327,7 @@ function postToBitChute() {
 	}) 
 }
 function postToYouTube() {
-	if(!$("post_youtube").checked) {
+	if(!_G("post_youtube").checked) {
 		postEverywhere();
 		return
 	}
@@ -329,12 +342,32 @@ function postToYouTube() {
 var use_vid_for_social = true;
 
 var social_vid_clip = null;
+var social_vid_clip_insta = null;
 var social_vid_imgs = [];
 var processing_social_vid_clip = false;
 var done_processing_social_vid = false;
 
+function hasImageOrVideo() {
+	return _G("social_preview_select").value != "None"
+		&& (
+			(_G("social_preview_select").value == "Images" && Array.from(_G("social_image_preview").getElementsByTagName("img")).length > 0)
+			||
+			(_G("social_preview_select").value == "Clip" && vid_blob)
+		);
+}
+
+function postToGplus() {
+	if(!_G("post_gplus").checked) {
+		postEverywhere();
+		return
+	}
+	console.log("posting to Gplus")
+	openUploadTab("https://plus.google.com/", "sites/gplus.js", function(tab){
+		tabOpened(tab.id, _G("status_gplus"), postToGplus);
+	})
+}
 function postToTumblr() {
-	if(!$("post_tumblr").checked) {
+	if(!_G("post_tumblr").checked) {
 		postEverywhere();
 		return
 	}
@@ -343,8 +376,18 @@ function postToTumblr() {
 		tabOpened(tab.id, _G("status_tumblr"), postToTumblr);
 	})
 }
+function postToInstagram() {
+	if(!_G("post_instagram").checked || !hasImageOrVideo()) {
+		postEverywhere();
+		return
+	}
+	console.log("posting to Instagram")
+	openUploadTab("https://www.instagram.com/logan_krumbhaar/", "sites/instagram.js", function(tab){
+		tabOpened(tab.id, _G("status_instagram"), postToInstagram);
+	})
+}
 function postToTwitter() {
-	if(!$("post_twitter").checked) {
+	if(!_G("post_twitter").checked) {
 		postEverywhere();
 		return
 	}
@@ -354,7 +397,7 @@ function postToTwitter() {
 	})
 }
 function postToGab() {
-	if(!$("post_gab").checked) {
+	if(!_G("post_gab").checked) {
 		postEverywhere();
 		return
 	}
@@ -364,7 +407,7 @@ function postToGab() {
 	})
 }
 function postToMinds() {
-	if(!$("post_minds").checked) {
+	if(!_G("post_minds").checked) {
 		postEverywhere();
 		return
 	}
@@ -374,7 +417,7 @@ function postToMinds() {
 	})
 }
 function postToFacebookPersonal() {
-	if(!$("post_facebook_personal").checked) {
+	if(!_G("post_facebook_personal").checked) {
 		postEverywhere();
 		return
 	}
@@ -384,28 +427,17 @@ function postToFacebookPersonal() {
 	})
 }
 function postToFacebookPage() {
-	if(!$("post_facebook_page").checked) {
+	if(!_G("post_facebook_page").checked) {
 		postEverywhere();
 		return
 	}
-	var page = simplifyUrl( $("facebook_page_url").value );
+	var page = simplifyUrl( _G("facebook_page_url").value );
 	
 	console.log("posting to Facebook Page: "+page)
 	openUploadTab(page, "sites/facebook_page.js", function(tab){
 		tabOpened(tab.id, _G("status_facebook_page"), postToFacebookPage);
 	})
 }
-/*
- * dtube posts here automatically
-function postToSteemit() {
-	if(!$("post_steemit").checked) {
-		postEverywhere();
-		return
-	}
-	console.log("posting to Steemit")
-	openUploadTab("https://steemit.com/submit.html", "sites/steemit.js")
-}
-*/
 
 function anySocialChecked() {
 	return ( _G("post_facebook_page").checked && ! _G("fb_page_full_vid").checked )
@@ -414,10 +446,11 @@ function anySocialChecked() {
 		|| _G("post_gab").checked
 		|| _G("post_twitter").checked
 		|| _G("post_tumblr").checked
+		|| _G("post_instagram").checked
 }
 
 var vid_post_queue = [postToYouTube, postToBitChute, postToDailymotion, postToVimeo, postToTopbuzz, postToMetacafe, postToBitTube, postToRealVideo];
-var social_post_queue = [postToTwitter, postToGab, postToMinds, postToFacebookPersonal, postToFacebookPage, postToTumblr];
+var social_post_queue = [postToTwitter, postToGplus, postToGab, postToMinds, postToTumblr, postToInstagram, postToFacebookPersonal, postToFacebookPage];
 var last_post_queue = [postToDTube]
 
 var saved_social_vid = false;
@@ -431,13 +464,16 @@ function postEverywhere() {
 		
 		_G("vid_processing_text").style.display = "inline";
 
-		getVideoClip(function(blob) {
+		getVideoClip(function(blob, blob_mpeg4insta) {
 			_G("vid_processing_text").style.display = "none";
 			if (!blob) {
 				done_processing_social_vid = true;
 				return;
 			}
+			console.log(blob);
+			console.log(blob_mpeg4insta);
 			social_vid_clip = blob;
+			social_vid_clip_insta = blob_mpeg4insta;
 			done_processing_social_vid = true;
 		});
 	}

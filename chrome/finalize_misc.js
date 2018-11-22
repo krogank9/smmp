@@ -99,16 +99,6 @@ Array.from(document.getElementsByClassName("site_status_span")).forEach(function
 	}
 });
 
-function mirrorGplusYouTubeResult() {
-	if(_G("status_youtube").success == true && _G("share_to_gplus").checked)
-		_G("status_gplus").showSuccess()
-	else
-		_G("status_gplus").hide()
-	
-	setTimeout(mirrorGplusYouTubeResult, 100);
-}
-mirrorGplusYouTubeResult();
-
 function isASCII(str) {
     return /^[\x00-\x7F]*$/.test(str);
 }
@@ -125,7 +115,11 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
 			}
 		});
 		
-		tabClosed(sender.tab.id, true);
+		if(message.closedErrorMessage)
+			console.log(message.closedErrorMessage); // print error message if tab failed
+		else
+			tabClosed(sender.tab.id, true); // and dont say safely closed
+		
 		chrome.tabs.remove(sender.tab.id);
 
 		postEverywhere();
@@ -237,6 +231,19 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
 			// first simulate move mouse to location
 			chrome.debugger.sendCommand({tabId: sender.tab.id}, 'Input.dispatchMouseEvent',
 			{"type" : "mouseMoved", "x":message.x, "y":message.y});
+		});
+	}
+	else if(message.simulateClick) {
+		chrome.debugger.attach({tabId: sender.tab.id}, "1.0", function() {
+			if(chrome.runtime.lastError)
+				;
+			// first simulate move mouse to location
+			chrome.debugger.sendCommand({tabId: sender.tab.id}, 'Input.dispatchMouseEvent',
+			{"type" : "mousePressed", "x":message.x, "y":message.y});
+			setTimeout(function() {
+				chrome.debugger.sendCommand({tabId: sender.tab.id}, 'Input.dispatchMouseEvent',
+				{"type" : "mouseReleased", "x":message.x, "y":message.y});
+			}, 100);
 		});
 	}
 	else if(message.spoofMobile) {

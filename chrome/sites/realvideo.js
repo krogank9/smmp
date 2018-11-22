@@ -19,7 +19,20 @@ function onlyUnique(value, index, self) {
 }
 
 // 0. wait for everything to be loaded
-wait( function waitLoad() {return !! Array.from(document.getElementsByTagName("input")).filter(i=>i.type=="file")[0]}, importFilesFromStorage, 10000 );
+if(window.location.href.includes("brighteon.com/dashboard/upload"))
+	wait( function waitLoad() {return !! Array.from(document.getElementsByTagName("input")).filter(i=>i.type=="file")[0]}, importFilesFromStorage, 10000 );
+else if(window.location.href.includes("brighteon.com/login?"))
+	wait( function waitLoad() {return !! document.getElementsByName("username")[0]}, function(){
+		console.log("hitting enter");
+		document.getElementsByName("username")[0].focus();
+		wait( function waitLoad() {return !! Array.from(document.getElementsByTagName("button")).filter(b=>b.getAttribute("type")=="submit")[0]}, function(){
+			Array.from(document.getElementsByTagName("button")).filter(b=>b.getAttribute("type")=="submit")[0].click()
+		}, 10000 );
+	}, -1, 4000);
+else if(window.location.href.includes("brighteon.com/login"))
+	wait( function waitLoad() {return !! Array.from(document.getElementsByTagName("a")).filter(a=>a.classList.contains("azure"))[0]}, function(){Array.from(document.getElementsByTagName("a")).filter(a=>a.classList.contains("azure"))[0].click()}, 10000 );
+else if(window.location.href.endsWith("brighteon.com/"))
+	window.location.href = "https://www.brighteon.com/dashboard/upload";
 
 // 1. get all files imported
 function importFilesFromStorage() {

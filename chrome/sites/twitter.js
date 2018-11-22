@@ -13,8 +13,8 @@ function onlyUnique(value, index, self) {
 }
 
 // 0. wait for everything to be loaded
-//wait( function waitLoad() {return !!document.getElementById("fileupload")}, importFilesFromStorage, 10000 );
-importFilesFromStorage();
+wait( function waitLoad() {return !! document.getElementById("global-new-tweet-button")}, importFilesFromStorage, -1, 1000);
+//importFilesFromStorage();
 
 // 1. get all files imported
 function importFilesFromStorage() {
@@ -24,14 +24,17 @@ function importFilesFromStorage() {
 		console.log("all files loaded");
 		console.log(video_filelist)
 		
-		wait(function tweetBoxAppear() { return !! document.getElementById("tweet-box-home-timeline") }, function() {
-			document.getElementById("tweet-box-home-timeline").focus()
-			
+		document.getElementById("global-new-tweet-button").click();
+		
+		wait(function tweetBoxAppear() {
+				return !! document.getElementById("Tweetstorm-dialog-dialog")
+				&& !! document.getElementById("Tweetstorm-dialog-dialog").offsetParent
+		}, function() {
 			if(video_filelist || imgs_filelist)
 				setTimeout(uploadVideo, 1500);
 			else
 				setTimeout(makeTextPost, 1500);
-		}, -1, 1000);
+		}, 10000, 1000);
 		//wait(function waitTextboxShow() { return !! document.getElementById("tweet-box-home-timeline").childNodes[0] }, uploadVideo, -1);
 	});
 }
@@ -39,8 +42,6 @@ function importFilesFromStorage() {
 // 2b. make text post
 
 function makeTextPost() {
-	document.getElementsByClassName("tweet-box rich-editor")[0].focus();
-	
 	setTimeout(function() {
 		simulateClearTextbox(function() {
 			document.activeElement.innerText = getSocialHeadline();
@@ -60,7 +61,7 @@ function makeTextPost() {
 function uploadVideo() {
 	console.log("in uploadVideo()")
 	
-	document.getElementsByClassName("tweet-box rich-editor")[0].focus();
+	//document.getElementsByClassName("tweet-box rich-editor")[0].focus();
 	
 	setTimeout(function() {
 		simulateClearTextbox(function() {
@@ -71,12 +72,12 @@ function uploadVideo() {
 			for(var i=0; i<file_list.length; i++) {
 				let i_ = i;
 				setTimeout(function() {
-					Array.from(document.getElementsByClassName("home-tweet-box tweet-box component tweet-user")[0].getElementsByTagName("input")).filter(function(inp) { return inp.type=="file"})[0].files = fileListFromFile(file_list[i_])
+					Array.from(document.getElementById("Tweetstorm-dialog-dialog").getElementsByTagName("input")).filter(function(inp) { return inp.type=="file"})[0].files = fileListFromFile(file_list[i_])
 				}, i*50);
 			}
 			
 			wait(function thumbnailAppeared() {
-				return window.getComputedStyle( document.getElementsByClassName("timeline-tweet-box")[0].getElementsByClassName("TweetBoxAttachments")[0] ).display != "none"
+				return window.getComputedStyle( document.getElementById("Tweetstorm-dialog-dialog").getElementsByClassName("TweetBoxAttachments")[0] ).display != "none"
 			}, function() {
 				//document.getElementsByClassName("timeline-tweet-box")[0].getElementsByClassName("tweet-button")[0].children[1].click();
 				setTimeout(function() {
@@ -85,15 +86,17 @@ function uploadVideo() {
 				
 				wait(function finishedUploading() {
 					// check if tweet toolbar buttons still there, if not it's done uploading & posting all
-					return window.getComputedStyle(document.getElementsByClassName("timeline-tweet-box")[0].getElementsByClassName("TweetBoxToolbar")[0]).display == "none"
+					return (!document.getElementById("Tweetstorm-dialog-dialog") || !document.getElementById("Tweetstorm-dialog-dialog").offsetParent)
+						&& Array.from(document.getElementsByClassName("message-text")).length > 0
+						&& Array.from(document.getElementsByClassName("message-text")).filter(m => !m.innerText.includes("%")).length > 0
 				}, function() {
 					// all done w/ tweet
 					setTimeout(function() {
 						chrome.runtime.sendMessage({closeThis: true});
 					}, 1000);
-				}, -1, 2000);
+				}, -1, 500);
 				
-			}, -1);
+			}, -1, 100);
 		});
 	}, 1000);
 }

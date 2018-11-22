@@ -18,6 +18,7 @@ function onlyUnique(value, index, self) {
 	return self.indexOf(value) === index;
 }
 
+console.log(window.location.href)
 // 0. wait for everything to be loaded
 wait( function waitLoad() {return !! document.getElementById("title")}, importFilesFromStorage, 10000 );
 

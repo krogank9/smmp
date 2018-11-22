@@ -27,7 +27,7 @@ function importFilesFromStorage() {
 				setTimeout(uploadImages, 1000);
 			else
 				setTimeout(makeTextPost, 1000);
-		}, -1);
+		}, 10000, 1000);
 		//wait(function waitTextboxShow() { return !! document.getElementById("tweet-box-home-timeline").childNodes[0] }, uploadVideo, -1);
 	});
 }
@@ -35,12 +35,12 @@ function importFilesFromStorage() {
 function waitNoLoadingPosts(cb) {
 	wait(function noLoadingPosts() {
 		return ! Array.from(document.getElementById("pagelet_timeline_main_column").getElementsByTagName("div")).filter(d=>window.getComputedStyle(d).opacity==0.4)[0];
-	}, cb, -1, 1000);
+	}, cb, 30000, 1000);
 }
 
 // 2a. make text post
 function makeTextPost() {
-	simulateTypeText(getSocialHeadline(), function() {
+	simulateTypeText(getSocialHeadline(1000, false, true), function() {
 		setTimeout(function() {
 			simulateCtrlEnter(function() {
 				waitNoLoadingPosts(function() {
@@ -53,7 +53,7 @@ function makeTextPost() {
 
 // 2b. make images post
 function uploadImages() {
-	var fb_descr = getSocialHeadline();
+	var fb_descr = getSocialHeadline(1000, false, true);
 
 	console.log("fb_descr: '"+fb_descr+"'");
 	simulateTypeText(fb_descr, function() {
@@ -75,20 +75,20 @@ function uploadImages() {
 				}, function publishPost() {
 					// press share
 					simulateCtrlEnter(function() {
-						var uploadBoxClosed = ! document.getElementById("PageComposerPagelet_").getElementsByClassName("fbScrollableAreaContent")[0];
-						
-						wait(function(){return uploadBoxClosed}, function() {
+						wait(function uploadBoxClosed(){
+							return ! document.getElementById("PageComposerPagelet_").getElementsByClassName("fbScrollableAreaContent")[0]
+						}, function() {
 							setTimeout(function() {
 								// give a sec to close
 								waitNoLoadingPosts(function() {
 									chrome.runtime.sendMessage({closeThis: true});
 								});
 							}, 1000);
-						});
+						}, -1, 100);
 					});
 					//Array.from(document.getElementById("PageComposerPagelet_").getElementsByTagName("button")).filter(b=>b.type =="submit").slice(-1)[0].click();
 				});
-			}, 1000);
+			}, 2000);
 		}, 1000);
 	});
 }
@@ -128,26 +128,21 @@ function setVidInfoAndPublish() {
 	// type title
 	var title_input = Array.from(document.getElementsByTagName("input")).filter(d => d.getAttribute("data-testid") == "VIDEO_TITLE_BAR_TEXT_INPUT")[0];
 	title_input.click();
-	simulateTypeText(video_info.title);
-	// wait for finish typing
-	wait(function finishTypeTitle() { return title_input.value.trim() == video_info.title.trim(); }, function() {
+	simulateTypeText(video_info.title, function() {
 		// type descr
 		var descr_input = Array.from(composer_dialog.getElementsByTagName("div")).filter(d => d.getAttribute("role") == "combobox")[0];
 		descr_input.click()
 		
 		// append the video link if enabled & one was set
-		var appendLink = getVideoLink();
-		if(appendLink)
-			appendLink = " "+appendLink;
-		var fb_descr = video_info.headline + appendLink;
+		var fb_descr = getSocialHeadline();
 		
-		if(video_info.fb_page_full_vid === true) {
+		if(video_info.fb_page_full_vid === true
+			&& !video_info.description.includes("https://") // FB page links may require captcha, just prevent
+			&& !video_info.description.includes("http://")) {
 			fb_descr = video_info.description;
 		}
 		
-		simulateTypeText(fb_descr.trim());
-		
-		wait(function finishTypeDescr() { return descr_input.innerText.trim() == fb_descr.trim(); }, function() {
+		simulateTypeText(fb_descr.trim(), function() {
 			var tag_input = Array.from(composer_dialog.getElementsByTagName("input")).filter(d => d.getAttribute("role") == "combobox")[0];
 			tag_input.click();
 			
@@ -179,13 +174,14 @@ function setVidInfoAndPublish() {
 			
 			cbQueue.push(function() {
 				setTimeout(function() {
-					Array.from(document.getElementsByTagName("a")).filter(d => d.getAttribute("data-testid") == "VIDEO_PUBLISH_MENU_BUTTON")[0].click();
-					
+					Array.from(document.getElementsByTagName("a")).filter(d => d.getAttribute("data-testid") == "VIDEO_COMPOSER_NEXT_BUTTON")[0].click();
 					setTimeout(function() {
-						Array.from(document.getElementsByTagName("a")).filter(d => d.getAttribute("data-testid") == "VIDEO_PUBLISH_NOW_BUTTON")[0].click();
+						Array.from(document.getElementsByTagName("a")).filter(d => d.getAttribute("data-testid") == "VIDEO_COMPOSER_PUBLISH_BUTTON")[0].click();
 						
 						// note: before close wait till upload box closes or it will prevent tab close.
-						wait(function composerClosed() { return !Array.from(document.getElementsByTagName("div")).filter(d => d.getAttribute("data-testid") == "VIDEO_COMPOSER_DIALOG")[0] }, function() {
+						wait(function composerClosed() {
+							return ! Array.from(document.getElementsByTagName("div")).filter(d => d.getAttribute("data-testid") == "VIDEO_COMPOSER_DIALOG")[0]
+						}, function() {
 							chrome.runtime.sendMessage({closeThis: true});
 						});
 					}, 500);

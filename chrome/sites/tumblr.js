@@ -42,8 +42,9 @@ function makeTextPost() {
 	
 	console.log("text post")
 
-	
-	setTimeout(function() {
+	wait(function textInputAppear() {
+		return !! document.getElementsByClassName("editor editor-plaintext")[2];
+	}, function() {
 		setForceFocusElement(document.getElementsByClassName("editor editor-plaintext")[2]);
 		
 		// find any tags in headline to put in the proper tags section tumblr has
@@ -64,30 +65,43 @@ function makeTextPost() {
 			var post_button = document.getElementsByClassName("create_post_button")[0];
 			wait(function buttonEnabled() { return !post_button.disabled }, function() {
 				clearForceFocusElement();
+				//simulateCtrlEnter();
 				post_button.click();
-			}, -1, 1000);
+			}, 10000, 4000);
 		}, document.getElementsByClassName("editor editor-plaintext")[2]);
-	}, 1000);
+	}, 10000, 1000);
 }
 
 // 2b. upload photos
 function uploadPhotos() {
-	setTimeout(function() {
+	wait(function photoInputAppear() {
+		return !! Array.from(document.getElementsByTagName("input")).filter(i=>i.type=="file")[0];
+	}, function() {
 		Array.from(document.getElementsByTagName("input")).filter(i=>i.type=="file")[0].files = imgs_filelist;
-		
-		makeTextPost();
-	}, 1000);
+
+		wait(function doneUpload() {
+			return document.getElementsByClassName("knight-rider-bar")[0]
+				&& ! document.getElementsByClassName("knight-rider-bar")[0].offsetParent;
+		}, function() {
+			makeTextPost();
+		}, -1, 2000);
+	}, 10000, 1000);
 }
 
 // 2c. upload video
 function uploadVideo() {
-	setTimeout(function() {
+	wait(function videoInputAppear() {
+		return !! Array.from(document.getElementsByTagName("input")).filter(i=>i.type=="file")[0];
+	}, function() {
 		Array.from(document.getElementsByTagName("input")).filter(i=>i.type=="file")[0].files = video_filelist;
 		
-		setTimeout(function() {
+		wait(function doneUpload() {
+			return document.getElementsByClassName("knight-rider-bar")[0]
+				&& ! document.getElementsByClassName("knight-rider-bar")[0].offsetParent;
+		}, function() {
 			if(!document.getElementsByClassName("confirm-tos--checkbox")[0].checked)
 				document.getElementsByClassName("confirm-tos--checkbox")[0].click()
 			makeTextPost();
-		}, 1000);
-	}, 1000);
+		}, -1, 2000);
+	}, 10000, 1000);
 }

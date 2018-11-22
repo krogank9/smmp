@@ -18,7 +18,7 @@ function importFilesFromStorage() {
 		console.log("all files loaded");
 		console.log(video_filelist)
 		
-		wait(function tweetBoxAppear() { return !! document.getElementsByTagName("textarea")[0] }, function() {
+		wait(function facebookStatusBoxAppear() { return !! document.getElementsByTagName("textarea")[0] }, function() {
 			document.getElementsByTagName("textarea")[0].focus();
 			
 			if(getSocialPostType() == "video")
@@ -27,7 +27,7 @@ function importFilesFromStorage() {
 				setTimeout(uploadImages, 1000);
 			else
 				setTimeout(makeTextPost, 1000);
-		}, -1);
+		}, 10000);
 		//wait(function waitTextboxShow() { return !! document.getElementById("tweet-box-home-timeline").childNodes[0] }, uploadVideo, -1);
 	});
 }
@@ -40,7 +40,7 @@ function waitNoLoadingPosts(cb) {
 
 // 2a. make text post
 function makeTextPost() {
-	simulateTypeText(getSocialHeadline(), function() {
+	simulateTypeText(getSocialHeadline(1000, false, true), function() {
 		setTimeout(function() {
 			simulateCtrlEnter(function() {
 				waitNoLoadingPosts(function() {
@@ -55,7 +55,7 @@ function makeTextPost() {
 
 function uploadImages() {
 	setTimeout(function() {
-		var fb_descr = getSocialHeadline();
+		var fb_descr = getSocialHeadline(1000, false, true);
 		simulateTypeText(fb_descr.trim(), function() {
 			// after post pagelet opens, set the video file list
 			setTimeout(function() {
@@ -83,7 +83,7 @@ function uploadImages() {
 							}, 2500);
 						});
 					});
-				}, -1, 1000);
+				}, -1, 2000);
 			}, 3000);
 		});
 	}, 500);
@@ -98,7 +98,7 @@ function uploadVideo() {
 	//document.getElementById("tweet-box-home-timeline").childNodes[0].innerHTML = video_info.headline + appendLink;
 	
 	setTimeout(function() {
-		var fb_descr = getSocialHeadline();
+		var fb_descr = getSocialHeadline(1000, false, true);
 		simulateTypeText(fb_descr.trim());
 		
 		// after post pagelet opens, set the video file list
@@ -121,8 +121,8 @@ function uploadVideo() {
 					return !! Array.from(document.getElementsByTagName("div")).filter(d=>d.getAttribute("role") == "dialog" && d.children[0] && d.children[0].getAttribute("data-testid")=="video_processing_dialog")[0];
 				}, function() {
 					chrome.runtime.sendMessage({closeThis: true});
-				}, -1, 1000);
-			}, -1, 2500);
+				}, -1, 2500);
+			}, -1, 5000);
 		}, 2500);
 	}, 500);
 }

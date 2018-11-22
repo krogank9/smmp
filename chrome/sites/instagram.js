@@ -18,16 +18,27 @@ if(window.location.href.includes("instagram.com/logan_krumbhaar/")) {
 	chrome.runtime.sendMessage({spoofMobile: true});
 	setTimeout(function() {
 		window.location.href = "https://www.instagram.com/accounts/activity/";
-	});
+	}, 1000);
 }
 else if(window.location.href.endsWith("/accounts/activity/")) {
 	importFilesFromStorage(function() {
-		Array.from(document.getElementsByTagName("div")).filter(d=>d.getAttribute('role')=="menuitem")[0].click();
-		Array.from(document.getElementsByTagName("input")).filter(i=>i.type=="file")[0].files = imgs_filelist || video_filelist;
+		console.log(video_filelist);
+		setTimeout(function() {
+			var uploadButton = Array.from(document.getElementsByTagName("div")).filter(d=>d.getAttribute('role')=="menuitem")[0];
+			uploadButton.click();
+			simulateClickElem(uploadButton, function() {
+				console.log("SETTING");
+				Array.from(document.getElementsByTagName("input")).filter(i=>i.type=="file")[0].files = imgs_filelist || video_filelist;
+			});
+		}, 1000);
 	});
 }
 else if(window.location.href.endsWith("/create/style/")) {
-	//document.getElementsByTagName("header")[0].getElementsByTagName("button")[1].click();
+	simulateHoverElem(document.getElementsByTagName("header")[0].getElementsByTagName("button")[1], function() {
+		setTimeout(function() {
+			document.getElementsByTagName("header")[0].getElementsByTagName("button")[1].click();
+		}, 1000);
+	});
 }
 else if(window.location.href.endsWith("/create/details/")) {
 	document.getElementsByTagName("textarea")[0].focus();
@@ -40,7 +51,16 @@ else if(window.location.href.endsWith("/create/details/")) {
 	});
 }
 else {
-	chrome.runtime.sendMessage({closeThis: true});
+	// wait for video dismiss popup
+	wait(function dismissAppear() {
+		return (Array.from(document.getElementsByTagName("button")).filter(b=>b.parentElement.children[0].tagName=="P" && b.parentElement.children.length == 2)[0]
+			&& Array.from(document.getElementsByTagName("button")).filter(b=>b.parentElement.children[0].tagName=="P" && b.parentElement.children.length == 2)[0].innerText.trim() == "Dismiss")
+			||
+			(Array.from(document.getElementsByTagName("p"))[0]
+			&& Array.from(document.getElementsByTagName("p"))[0].innerText.includes("photo was"));
+	}, function() {
+		chrome.runtime.sendMessage({closeThis: true});
+	});
 }
 
 // 1. get all files imported

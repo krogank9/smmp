@@ -42,7 +42,7 @@ function uploadVideo() {
 	Array.from(document.getElementById("upload-prompt-box").getElementsByTagName("input")).filter(inp => inp.type=="file")[0].files = video_filelist;
 	wait(function onVidInfoPage() {
 		return !! Array.from(document.getElementsByClassName("custom-thumb-area horizontal-custom-thumb-area small-thumb-dimensions"))[0].getElementsByTagName("input")[0];
-	}, setBasicVidInfo, -1);
+	}, setBasicVidInfo, 10000);
 	//setTimeout(setVidInfo, 1000);
 }
 
@@ -56,7 +56,7 @@ function addYouTubeTag(name) {
 }
 
 // 3. set vid info
-function setBasicVidInfo() {	
+function setBasicVidInfo() {
 	document.getElementsByClassName("yt-uix-form-input-text video-settings-title")[0].value = video_info.title;
 	
 	var tags_short = video_info.tags.filter(tag => !tag.includes(" ") && !tag.includes(",")).filter(onlyUnique).slice(0,3).map(t=>"#"+t).join(" ")
@@ -68,15 +68,15 @@ function setBasicVidInfo() {
 	var tags = video_info.tags.filter(tag => !tag.includes(",")).filter(onlyUnique);
 	tags.forEach(function(t){addYouTubeTag(t)});
 	
-	// share_to_gplus
-	Array.from(document.getElementsByTagName("input")).filter(i => i.type == "checkbox" && i.name == "creator_share_gplus")[0].checked = !! video_info.share_to_gplus;
+	// uncheck sharing to gplus, there is an option to post to gplus directly w/ hashtags + photos
+	Array.from(document.getElementsByTagName("input")).filter(i => i.type == "checkbox" && i.name == "creator_share_gplus")[0].checked = false;
 	
 	Array.from(document.getElementsByClassName("custom-thumb-area horizontal-custom-thumb-area small-thumb-dimensions"))[0].getElementsByTagName("input")[0].files = thumb_filelist;
 	
-	wait( function waitThumbUploaded() {return !! Array.from(document.getElementsByTagName("img")).filter(img => img.src.includes("preview_image"))[0]}, function() {
+	wait(function waitThumbUploaded() {return !! Array.from(document.getElementsByTagName("img")).filter(img => img.src.includes("preview_image"))[0]}, function() {
 		document.getElementById("advanced-settings").children[0].children[0].click()
 		wait(function waitAdvancedPageLoad() {return true}, setAdvancedVidInfo, -1);
-	}, -1);
+	}, 10000);
 }
 
 function setAdvancedVidInfo() {
@@ -106,7 +106,7 @@ function setAdvancedVidInfo() {
 					// wait for "saving..." text to be gone
 					setTimeout(function() {
 						chrome.runtime.sendMessage({closeThis: true});
-					}, 1000);
+					}, 3000);
 				});
 			}, 500);
 		}, -1, 3000);

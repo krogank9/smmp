@@ -40,6 +40,7 @@ function importFilesFromStorage() {
 	loadVidInfoFromStorage_Video(function() {
 		console.log("all files loaded");
 		Array.from(document.getElementsByTagName("input")).filter(i=>i.type=="file")[0].files = video_filelist
+		// stagger
 		setTimeout(function() {
 			Array.from(document.getElementsByTagName("input")).filter(i=>i.type=="file")[1].files = thumb_filelist_small
 			setVidInfo();

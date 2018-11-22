@@ -24,11 +24,15 @@ if(window.location.href.includes("metacafe.com/upload-video")) {
 }
 else if (window.location.href.includes("metacafe.com/?login")) {
 	setTimeout(function() {
-		Array.from(document.getElementsByTagName("button")).filter(b=>b.type=="submit")[0].click()
-		setTimeout(function() {
-			Array.from(document.getElementsByTagName("button")).filter(b=>b.type=="submit")[0].click()
-		}, 2000);
+		document.getElementById("login_email").focus();
+		simulateTypeAndBackspace(function() {
+			Array.from(document.getElementsByTagName("button")).filter(b=>b.getAttribute("type")=="submit")[0].click();
+		});
 	}, 4000);
+}
+else if (window.location.href.endsWith("www.metacafe.com/")) {
+	//login redirects to here
+	window.location.href = "http://www.metacafe.com/upload-video/";
 }
 else {
 	setTimeout(function() {

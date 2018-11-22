@@ -53,8 +53,12 @@ function setVidInfo() {
 		simulateTypeText(video_info.description.replace(/\n/g, " "), function() {
 			
 			// now set thumb
-			document.getElementsByClassName("img")[0].click()			
-			setTimeout(uploadThumb, 1000);
+			document.getElementsByClassName("img")[0].click()		
+			//setTimeout(uploadThumb, 1000);
+			wait(function thumbWindowAppear() {
+				return !!Array.from(document.getElementsByClassName("tab-item tab-large-item")).slice(-1)[0]
+					&& !!Array.from(document.getElementsByClassName("tab-item tab-large-item")).slice(-1)[0].offsetParent
+			}, uploadThumb);
 		});
 	});
 }

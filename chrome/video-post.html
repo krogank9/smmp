@@ -142,10 +142,10 @@ form input{
 	<div style="width: 100%; background-color: #000; color: white; padding: 0; box-shadow: 0px 0em 0.5em #000000aa; position: relative;">
 		<div style="padding: 1em 4em 1em 4em; display: flex; flex-direction: row;">
 			<span>
-				<h2>Social Media MEGAposter <span style="color: #ff0000">BETA</span></h2>
+				<h2>Social Media MEGAposter</h2>
 			</span>
 			<span style="flex-grow: 1;"></span>
-			<div id="tweet_dev_box" style="display: flex; flex-direction: row; user-select: none; cursor: pointer; border: 1px solid #ff0000;">
+			<div id="tweet_dev_box" style="display: flex; flex-direction: row; user-select: none; cursor: pointer;">
 				<div style="display: flex; flex-direction: column; height: 100%;">
 					<div style="flex: 1;"></div>
 					<img src="img/twitter.png" style="height:90%; width: 0px;" id="imgKeepWidthSameAsHeight">
@@ -187,7 +187,7 @@ form input{
 				<input type="checkbox" id="post_topbuzz"> TopBuzz <span id="status_topbuzz" class="site_status_span"></span> <br>
 				<input type="checkbox" id="post_metacafe"> Metacafe (no links allowed, description omitted) <span id="status_metacafe" class="site_status_span"></span> <br>
 				<input type="checkbox" id="post_bittube"> Bit.Tube <span id="status_bittube" class="site_status_span"></span> <br>
-				<input type="checkbox" id="post_realvideo"> real.video <span id="status_realvideo" class="site_status_span"></span> <br>
+				<input type="checkbox" id="post_realvideo"> Brighteon <span id="status_realvideo" class="site_status_span"></span> <br>
 				<input type="checkbox" id="post_dtube"> DTube (Uploaded last, after social sites due to IPFS queue wait time.) <span id="status_dtube" class="site_status_span"></span> <br>
 				<div id="video_disabled_overlay" style="position: absolute; width: 100%; height: 100%; left: 0; top: 0; background-image: url('img/caution.png'); z-index: 999;">
 					<span style="text-align: center; position: absolute; top: 50%; left: 50%; transform: translateY(-50%) translateX(-50%)">
@@ -204,12 +204,13 @@ form input{
 			<br>
 			
 			<input type="checkbox" id="post_twitter"> Twitter <span id="status_twitter" class="site_status_span"></span> <br>
+			<input type="checkbox" id="post_gplus"> Google Plus <span id="status_gplus" class="site_status_span"></span> <br>
 			<input type="checkbox" id="post_gab"> Gab <span id="status_gab" class="site_status_span"></span> <br>
 			<input type="checkbox" id="post_minds"> Minds <span id="status_minds" class="site_status_span"></span> <br>
 			<input type="checkbox" id="post_tumblr"> Tumblr <span id="status_tumblr" class="site_status_span"></span> <br>
+			<input type="checkbox" id="post_instagram"> Instagram <span id="status_instagram" class="site_status_span"></span> <br>
 			<input type="checkbox" id="post_facebook_personal"> Facebook (Personal) <span id="status_facebook_personal" class="site_status_span"></span> <br>
 			<input type="checkbox" id="post_facebook_page"> Facebook Page: <input type="textbox" placeholder="Page URL" id="facebook_page_url" spellcheck="false"/> <span id="status_facebook_page" class="site_status_span"></span> <input type="checkbox" id="fb_page_full_vid"> Upload full vid instead of clip <br>
-			<input type="checkbox" id="share_to_gplus"> Share to Google Plus (via YouTube only) <span id="status_gplus" class="site_status_span"></span> <br>
 			
 			<br>
 			
@@ -425,7 +426,7 @@ form input{
 			<br>
 			<br>
 			
-			<canvas id="thumbnail_canvas" width=1280 height=640 style="background-color: #eee; width: 100%;"></canvas>
+			<canvas id="thumbnail_canvas" width=1280 height=720 style="background-color: #eee; width: 100%;"></canvas>
 			<br>
 			<input id="thumbnail_text" type="text" placeholder="Caption text"></input>
 			<br><br>
@@ -458,7 +459,7 @@ form input{
 				<option value="bright white">Bright white</option>
 				<option value="black">Black</option>
 				<option value="white">White</option>
-				<option value="dark match">Match text</option>
+				<option value="bright match">Match text</option>
 				<option value="match">Match text light</option>
 				<option value="none">None</option>
 			</select>

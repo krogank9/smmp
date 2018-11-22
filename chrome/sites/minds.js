@@ -19,20 +19,29 @@ function importFilesFromStorage() {
 		
 		wait(function postBoxAppear() { return !! Array.from(document.getElementsByTagName("textarea")).length > 0 }, function() {
 			document.getElementsByTagName("textarea")[0].focus();
-			document.getElementsByTagName("textarea")[0].value = getSocialHeadline();
 			
-			simulateTypeText(" ", function() {
-				simulateBackspace(function() { // need type space at end and backspace or doesn't work for some reason
-					// minds does not autoplay videos, might as well post full
-					if(getSocialPostType() == "video" && !getVideoLink())
+			var tags = video_info.tags.filter(tag => !tag.includes(" ")).filter(onlyUnique).map(t=>"#"+t).slice(0, 5);
+			document.getElementsByTagName("textarea")[0].value = getSocialHeadline(1000, true) + "\n" + tags.join(" ");
+			
+			var isYouTubePost = getSocialHeadline().includes("youtu.be/") || getSocialHeadline().includes('youtube.com/watch');
+			
+			simulateTypeAndBackspace(function() {
+				document.getElementsByClassName("attachment-preview-delete")[0]
+				wait(function finishedUploading() {
+					// wait for youtube video preview to load before submitting post.
+					// if not allowed to load it will just show as a text post
+					return !isYouTubePost || !! document.getElementsByClassName("attachment-preview-delete")[0]
+				}, function() {
+					// minds does not autoplay videos, might as well post full unless it is YT
+					if(getSocialPostType() == "video" && !isYouTubePost)
 						setTimeout(uploadVideo, 1000);
 					else if(getSocialPostType() == "images")
 						setTimeout(uploadVideo, 1000);
 					else
-						publishPost();
-				});
+						setTimeout(publishPost, 2000);
+				}, -1, 1000);
 			});
-		}, -1);
+		}, 10000);
 		//wait(function waitTextboxShow() { return !! document.getElementById("tweet-box-home-timeline").childNodes[0] }, uploadVideo, -1);
 	});
 }

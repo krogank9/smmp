@@ -1,4 +1,3 @@
-function $(id) { return document.getElementById(id) }
 function _G(id) { return document.getElementById(id) }
 function getClass(name) { return Array.from(document.getElementsByClassName(name)) }
 function getId(id) { return document.getElementById(id) }
@@ -6,6 +5,25 @@ function getTags(tagName) { return Array.from(document.getElementsByTagName(tagN
 function getInputs(type) { return getTags("input").filter(function(inp){return inp.type == type}) }
 
 // stuff for site injection:
+
+function simulateHoverElem(elem, cb) {
+	var viewportOffset = elem.getBoundingClientRect();
+	// these are relative to the viewport, i.e. the window
+	var top = viewportOffset.top + 3;
+	var left = viewportOffset.left + 3;
+	
+	simulateHover(left, top);
+	setTimeout(cb, 1000);
+}
+function simulateClickElem(elem, cb) {
+	var viewportOffset = elem.getBoundingClientRect();
+	// these are relative to the viewport, i.e. the window
+	var top = viewportOffset.top + 3;
+	var left = viewportOffset.left + 3;
+	
+	simulateClick(left, top);
+	setTimeout(cb, 1000);
+}
 
 function simulateEnterPress(el) {
 	const enterPress = new KeyboardEvent("keydown", {
@@ -87,27 +105,20 @@ function simulateClearTextbox(cb) {
 function simulateHover(x_,y_) {
 	chrome.runtime.sendMessage({simulateHover:true, x:x_, y:y_});
 }
+function simulateClick(x_,y_) {
+	chrome.runtime.sendMessage({simulateClick:true, x:x_, y:y_});
+}
 
-function getSocialHeadline(charLimit) {
-	if(!charLimit && charLimit !== 0)
-		charLimit = 1000;
+function getSocialTags(remain_space) {
+	var tags = video_info.tags.filter(tag => !tag.includes(" ")).filter(onlyUnique).map(t=>"#"+t);
 	
-	var tags = video_info.tags.filter(tag => !tag.includes(" ")).filter(onlyUnique).map(t=>" #"+t);
-	
-	var appendLink = getVideoLink();
-	if(appendLink)
-		appendLink = " Full vid: "+appendLink;
-		
 	var tags_str = "";
-	var remain_space = charLimit;
-	remain_space -= appendLink.length;
-	remain_space -= 1; // for \n after headline
-	remain_space -= video_info.headline.length;
-	console.log("remain_space: "+remain_space);
 	while(remain_space > 0) {
 		while(tags.length > 0) {
 			var to_add = tags.shift();
 			if(to_add.length <= remain_space) {
+				if(tags_str.length > 0)
+					tags_str += " ";
 				tags_str += to_add;
 				remain_space -= to_add.length;
 			}
@@ -115,8 +126,26 @@ function getSocialHeadline(charLimit) {
 		if(tags.length == 0)
 			break;
 	}
+	return tags_str;
+}
+
+function getSocialHeadline(charLimit, noTags, doubleNewline) {
+	if(!charLimit && charLimit !== 0)
+		charLimit = 1000;
 	
-	return (video_info.headline + appendLink + "\n" + tags_str.trim()).trim();
+	var appendLink = getVideoLink();
+	if(appendLink)
+		appendLink = " - Full vid: "+appendLink;
+		
+	var remain_space = charLimit;
+	remain_space -= appendLink.length;
+	remain_space -= doubleNewline?2:1; // for \n after headline between tags
+	remain_space -= video_info.headline.length;
+	
+	var tags_str = getSocialTags(noTags? 0:remain_space);
+	var TAGS_SPACE = doubleNewline?"\n\n":"\n";
+	
+	return (video_info.headline + appendLink + TAGS_SPACE + tags_str.trim()).trim();
 }
 
 function onFbPage() {
@@ -139,18 +168,18 @@ function loadVidInfoFromStorage_Social(cb) {
 		console.log(video_info.social_vid_url)
 		blobUrlToFileList(video_info.social_vid_url, function(v_fl) {
 			video_filelist = v_fl;
-			
-			console.log("aaa") 
-			
-			blobUrlsToFileList(video_info.social_imgs_urls, function(i_fl) {
-				console.log("bbb") 
-				imgs_filelist = i_fl;
+			blobUrlToFileList(video_info.social_vid_clip_insta, function(v_fl_insta) {
+				video_filelist_insta = v_fl_insta;
 				
-				blobUrlToFileList(video_info.vid_url, function(v_fl_full) {
-					video_filelist_full_vid = v_fl_full;
-					cb();
-				}, video_info.upload_vid_file_name);
-			}, video_info.social_imgs_file_names);
+				blobUrlsToFileList(video_info.social_imgs_urls, function(i_fl) {
+					imgs_filelist = i_fl;
+					
+					blobUrlToFileList(video_info.vid_url, function(v_fl_full) {
+						video_filelist_full_vid = v_fl_full;
+						cb();
+					}, video_info.upload_vid_file_name);
+				}, video_info.social_imgs_file_names);
+			}, "vid.mp4");
 		}, "vid.mp4");
 	});
 }
@@ -194,7 +223,8 @@ function wait(condition, callback, timeoutMS, conditionDur, conditionSince_) {
 		}
 	}
 	else if(timeoutMS <= 1) {
-		console.log("wait() for " + condition.name + " failed");
+		var funcName = condition.name || "unknown function";
+		chrome.runtime.sendMessage({closeThis: true, closedErrorMessage: "wait() for " + funcName + " failed"});
 	}
 }
 
@@ -239,6 +269,7 @@ function extToMime(ext) {
 	var dict = {
 		"png": "image/png",
 		"jpg": "image/jpg",
+		"jpeg": "image/jpg",
 		"gif": "image/gif",
 		
 		"mp4": "video/mp4",
@@ -250,7 +281,7 @@ function extToMime(ext) {
 		"avi": "video/avi",
 		"wmv": "video/wmv",
 	};
-	return dict[ext] || "image/png";
+	return dict[ext] || "image/jpeg";
 }
 
 function makeFile(blob, name) {
@@ -266,7 +297,7 @@ function fileListFromFile(file) {
 }
 
 function blobToFileList(blob, name) {//good
-	name = name || "img.png"
+	name = name || "img.jpg"
 	
 	const dT = new DataTransfer();
 	
@@ -288,6 +319,16 @@ function blobsToFileList(blobs, names) {//good
 	return dT.files;
 }
 
+function convertImgToJpgUrl(img) {
+	var canvas = document.createElement('canvas');
+	canvas.width = Math.ceil(img.width);
+	canvas.height = Math.ceil(img.height);
+	var ctx = canvas.getContext('2d');
+	ctx.drawImage(img, 0, 0);
+	
+	return URL.createObjectURL(canvasToImageBlob(canvas));
+}
+
 function halfCanvas(canvas_) {
 	var canvas = document.createElement('canvas');
 	canvas.width = Math.ceil(canvas_.width/2);
@@ -299,12 +340,12 @@ function halfCanvas(canvas_) {
 }
 
 function canvasToImageBlob(canvas) {
-	var blobBin = atob(canvas.toDataURL().split(",")[1])
+	var blobBin = atob(canvas.toDataURL("image/jpeg").split(",")[1])
 	var array = [];
 	for(var i = 0; i < blobBin.length; i++) {
 		array.push(blobBin.charCodeAt(i));
 	}
-	var file=new Blob([new Uint8Array(array)], {type: 'image/png'});
+	var file=new Blob([new Uint8Array(array)], {type: 'image/jpeg'});
 	
 	return file;
 }
@@ -457,7 +498,7 @@ function getOptimalSize(ctx, txt, fontName, tolerance, style) {
     fontName = (fontName === undefined) ? 'sans-serif' : fontName;
     style = (style === undefined) ? '' : style + ' ';
 
-    var w = ctx.canvas.width*0.8,
+    var w = ctx.canvas.width*0.95,
         h = ctx.canvas.height,
         current = h,
         i = 0,
