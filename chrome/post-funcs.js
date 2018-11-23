@@ -1,4 +1,4 @@
-//vid
+// video sites
 
 function postToRealVideo() {
 	if(!_G("post_realvideo").checked) {
@@ -119,23 +119,26 @@ function postToYouTube() {
 	}) 
 }
 
-//social
+// social sites
 
-var use_vid_for_social = true;
-
-var social_vid_clip = null;
-var social_vid_clip_insta = null;
-var social_vid_imgs = [];
-var processing_social_vid_clip = false;
-var done_processing_social_vid = false;
-
-function hasImageOrVideo() {
-	return _G("social_preview_select").value != "None"
-		&& (
-			(_G("social_preview_select").value == "Images" && Array.from(_G("social_image_preview").getElementsByTagName("img")).length > 0)
-			||
-			(_G("social_preview_select").value == "Clip" && vid_blob)
-		);
+function postToInstagram() {
+	function hasImageOrVideo() {
+		return _G("social_preview_select").value != "None"
+			&& (
+				(_G("social_preview_select").value == "Images" && Array.from(_G("social_image_preview").getElementsByTagName("img")).length > 0)
+				||
+				(_G("social_preview_select").value == "Clip" && vid_blob)
+			);
+	}
+	
+	if(!_G("post_instagram").checked || !hasImageOrVideo()) {
+		postEverywhere();
+		return
+	}
+	console.log("posting to Instagram")
+	openUploadTab("https://www.instagram.com/logan_krumbhaar/", "sites/instagram.js", function(tab){
+		tabOpened(tab.id, _G("status_instagram"), postToInstagram);
+	})
 }
 
 function postToGplus() {
@@ -156,16 +159,6 @@ function postToTumblr() {
 	console.log("posting to Tumblr")
 	openUploadTab("https://www.tumblr.com/dashboard/", "sites/tumblr.js", function(tab){
 		tabOpened(tab.id, _G("status_tumblr"), postToTumblr);
-	})
-}
-function postToInstagram() {
-	if(!_G("post_instagram").checked || !hasImageOrVideo()) {
-		postEverywhere();
-		return
-	}
-	console.log("posting to Instagram")
-	openUploadTab("https://www.instagram.com/logan_krumbhaar/", "sites/instagram.js", function(tab){
-		tabOpened(tab.id, _G("status_instagram"), postToInstagram);
 	})
 }
 function postToTwitter() {
@@ -220,17 +213,3 @@ function postToFacebookPage() {
 		tabOpened(tab.id, _G("status_facebook_page"), postToFacebookPage);
 	})
 }
-
-function anySocialChecked() {
-	return ( _G("post_facebook_page").checked && ! _G("fb_page_full_vid").checked )
-		|| _G("post_facebook_personal").checked
-		|| _G("post_minds").checked
-		|| _G("post_gab").checked
-		|| _G("post_twitter").checked
-		|| _G("post_tumblr").checked
-		|| _G("post_instagram").checked
-}
-
-var vid_post_queue = [postToYouTube, postToBitChute, postToDailymotion, postToVimeo, postToTopbuzz, postToMetacafe, postToBitTube, postToRealVideo];
-var social_post_queue = [postToTwitter, postToGplus, postToGab, postToMinds, postToTumblr, postToInstagram, postToFacebookPersonal, postToFacebookPage];
-var last_post_queue = [postToDTube]
