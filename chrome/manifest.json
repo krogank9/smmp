@@ -2,7 +2,7 @@
 	"manifest_version": 2,
 
 	"name": "Social Media MEGAposter",
-	"version": "2.61",
+	"version": "2.66",
 
 	"browser_action": {
 	},
@@ -13,7 +13,7 @@
 
 	"permissions": [
 		"tabs", "storage", "unlimitedStorage",
-		"webRequest", "webRequestBlocking",
+		"webRequest", "webRequestBlocking", 
 		"debugger",
 		"<all_urls>"
 	],
@@ -23,5 +23,4 @@
           "128": "img/icon128.png" },
 	
 	"content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
-
 }

@@ -1,165 +1,218 @@
+// get/create/close/focus automatic posting window
 
-var open_upload_tab_ids = {};
-var isOpeningTab = false;
-function tabOpened(id, status_box_, postFunc_, successCallback_) {
-	
-	open_upload_tab_ids[id] = {
-		status_box: status_box_,
-		postFunc: postFunc_,
-		successCallback: successCallback_
+var cur_window_id = null;
+
+function getPostWindow(cb) {
+	if(cur_window_id !== null) {
+		chrome.windows.get(cur_window_id, {populate: true}, function(window){
+		
+			if(chrome.runtime.lastError || !window)
+				cb(null)
+			else
+				cb(window)
+		});
 	}
-	
-	let postFunc__ = postFunc_;
-	let id_ = id;
-	status_box_.showProgress(
-		function skip() {
-			console.log("skipping");
-			chrome.debugger.detach({tabId: id_}, function cb() {
-				if(chrome.runtime.lastError) {
-					// wasn't attached to tab in first place
-				}
-				chrome.tabs.remove(id_);
-				tabClosed(id_, false, postFunc__);
+	else
+		cb(null);
+}
+
+function createPostWindow(cb) {
+	getPostWindow(function(window) {
+		if(!window) {
+			chrome.windows.create({url:"google.com", type:"popup"}, function(window_) {
+				
+				cur_window_id = window_.id;
+				// get with populate property to set tab too
+				getPostWindow(function(window) {
+					//launch debugger for use later
+					chrome.debugger.attach({tabId: window.tabs[0].id}, "1.0", function() {
+						cb(window);
+					});
+				}, true);
 			});
-			
-			postEverywhere();
-		},
-		function retry() {
-			chrome.debugger.detach({tabId: id_}, function cb() {
-				if(chrome.runtime.lastError) {
-					// wasn't attached to tab in first place
-				}
-				chrome.tabs.remove(id_);
-				tabClosed(id_, false, postFunc__);
-			});
-			
-			postFunc__();
 		}
-	);
+		else
+			cb(window);
+	});
 }
-function tabClosed(id, success, postFunc) {
-	id = new String(id)
-	if(!(id in open_upload_tab_ids))
-		return
-	
+
+function closePostWindow(success) {
 	if(success) {
-		open_upload_tab_ids[id].status_box.showSuccess();
-		if(open_upload_tab_ids[id].successCallback)
-			open_upload_tab_ids[id].successCallback();
+		cur_status_box = null;
+		cur_retry_func = null;
+		cur_success_cb = null;
 	}
-	if(success === false && postFunc) {
-		let statusBox = open_upload_tab_ids[id].status_box;
-		open_upload_tab_ids[id].status_box.showFail(function() {
-			statusBox.hide();
-			postFunc();
-		});
-	}
-	
-	delete open_upload_tab_ids[id];
+	getPostWindow(function(window) {
+		if(window)
+			chrome.windows.remove(window.id);
+	});
 }
 
-function postFuncToSiteName(func) {
-	if(func == postToYouTube) return "youtube"
-	else if(func == postToBitChute) return "bitchute"
-	else return ""
+function focusPostWindow() {
+	getPostWindow(function(window) {
+		chrome.windows.update(window.id, {focused:true});
+	});
 }
 
-function checkTabPrematureClose() {
-	if(isOpeningTab) // don't check premature close if in the middle of opening a tab
-		return;
-	
-	let calledPostAgain = false;
-	
-	var keys = Object.keys(open_upload_tab_ids);
-	for(var i=0; i<keys.length; i++) {
-		var k = keys[i];
-		let str_tab_id = k;
-		let tab_id = parseInt(k);
-		chrome.tabs.get(tab_id, function(tab) {
-			if(chrome.runtime.lastError || !tab) {
+// persist inject sccripts to post window
 
-				// give option to retry tab later
-				console.log(open_upload_tab_ids[str_tab_id])
-				let postFunc = open_upload_tab_ids[str_tab_id].postFunc;
-				let statusBox = open_upload_tab_ids[str_tab_id].status_box;
-				tabClosed(str_tab_id, false, postFunc)
-				
-				var postFuncNames = {
-					postToYouTube: "youtube",
-					postToBitChute: "bitchute"
-				}
-				
-				// restart loop where left off, unless it stopped on the site which social links to
-				if(!calledPostAgain && postFuncToSiteName(postFunc) != video_info.video_to_link) {
-					calledPostAgain = true; // make sure not call post multiple times when looping closed tabs
-					postEverywhere();
-				}
-				else if (postFuncToSiteName(postFunc) == video_info.video_to_link) {
-					chrome.tabs.getCurrent(function(tab){
-						chrome.tabs.update(tab.id, {active:true});
-					});
-					alert("Could not post to video site used for social links. Please retry "+video_info.video_to_link+" to continue.");
-				}
-				return;
-			}
-		});
+var cur_injected_scripts = [];
+var last_injected_url = "";
+
+var last_url_change_time = 0;
+var last_url_change_time_url = "";
+function getUrlAge(url) {
+	if(url != last_url_change_time_url) {
+		last_url_change_time_url = url;
+		last_url_change_time = (new Date()).getTime();
+		return 0;
 	}
-	
-	setTimeout(checkTabPrematureClose, 100);
+	else {
+		return (new Date()).getTime() - last_url_change_time;
+	}
 }
-checkTabPrematureClose();
 
-//reinject scripts after url change
-function persistInjectTab(id, siteFile) {
-	let id_ = id;
-	let siteFile_ = siteFile;
-	let curUrl_ = "";
+function persistInjectScripts() {
 	
-	function reinjectTab() {
-		chrome.tabs.get(id_, function(tab) {
-			if(chrome.runtime.lastError)
-				return;
-			else if(!tab)
-				return;
-			else if(tab.url != curUrl_) {
-				curUrl_ = tab.url;
-				console.log("CHANGED: "+tab.url);
-				
-				// inject scripts
-				chrome.tabs.executeScript(id_, {file: "utils.js", allFrames:false}, function() {
-					if(chrome.runtime.lastError)
-						return;
-					chrome.tabs.executeScript(id_, {file: siteFile_, allFrames:false}, function() {
-						if(chrome.runtime.lastError)
-							return;
-						console.log("executed scripts in upload tab.")
-					});
-				});
-			}
+	getPostWindow(function(window) {
+		if(!window)
+			return;
 			
-			// url & injection up to date, tab still open if no return above, keep persisting scripts
-			setTimeout(reinjectTab, 200);
-		});
-	}
-	reinjectTab();
-}
-
-function openUploadTab(url, script, cb) {
-	isOpeningTab = true;
-	chrome.tabs.create({url: url, active: false},function(tab) {
-		if(chrome.runtime.lastError) {
-			isOpeningTab = false;
+		// don't reinject till finished loading
+		if(window.tabs[0].status != "complete") {
+			last_url_change_time = 0; // reset timer incase page changed somehow
 			return;
 		}
 		
-		// need to set active after creation so it doesn't steal window focus.
-		// so you can go into another browser window and work while it is automating
-		chrome.tabs.update(tab.id, {active:true});
-		persistInjectTab(tab.id, script);
+		let tab_id = window.tabs[0].id;
+		let tab_url = window.tabs[0].url;
 		
-		if(cb)
-			cb(tab);
+		if(tab_url == last_injected_url) {
+			return; // no need to reinject. url hasn't changed
+		}
+		else { // url has changed. reinject soon:
 			
-		isOpeningTab = false;
+			// only inject after 500ms passed from loading..
+			// this prevents page changing to same url or maybe other weird behavior
+			if(getUrlAge(tab_url) > 500)
+				last_injected_url = tab_url; // reinjecting scripts... update url
+			else
+				return			
+		}
+		
+		let injectQueue = cur_injected_scripts.slice(0);
+		
+		function runQueue() {
+			let file = injectQueue.shift();
+			
+			chrome.tabs.executeScript(tab_id, {file: file, allFrames:false}, function() {
+				console.log('injected '+file);
+				if(injectQueue.length > 0)
+					runQueue();
+			});
+		}
+		runQueue();
+	});
+	
+	setTimeout(persistInjectScripts, 100);
+}
+persistInjectScripts()
+
+function setPersistInjectScripts(files) {
+	cur_injected_scripts = files;
+}
+
+// now we need a way to determine whether site opened with openUploadTab has:
+//
+// 1. succeeded in making the post with confirmation from tab: display success & move onto the next step with postEverywhere()
+// 2. failed to make the post
+//   A. with a fail code and confirmation from tab: display fail & move onto the next step with postEverywhere()
+//   B. the tab has closed unexpectedly and therefore failed: same as above
+
+var cur_status_box = null;
+var cur_retry_func = null;
+var cur_success_cb = null;
+
+function checkPostWindowStatus() {
+	if(!cur_status_box && !cur_retry_func) {
+		setTimeout(checkPostWindowStatus, 100);
+		return;
+	}
+	
+	getPostWindow(function(window) {
+		if(!window) {
+			// case 2B. tab has closed unexpectedly and failed
+			tabFinished(false);
+			
+			cur_status_box = null;
+			cur_retry_func = null;
+			cur_success_cb = null;
+		}
+	});
+	
+	setTimeout(checkPostWindowStatus, 100);
+}
+checkPostWindowStatus();
+
+function siteIsVideoToLink(postFunc) {
+	function postFuncToSiteName(func) {
+		if(func == postToYouTube) return "youtube"
+		else if(func == postToBitChute) return "bitchute"
+		else return ""
+	}
+	
+	return postFuncToSiteName(postFunc) == video_info.video_to_link;
+}
+
+// tab messages listener in finalize_misc.js and case 1. and 2A. are taken care of here:
+function tabFinished(success) {
+	if(success) {
+		cur_status_box.showSuccess();
+		
+		if(cur_success_cb)
+			cur_success_cb();
+			
+		postEverywhere();
+	}
+	else { // tab finish failed
+		if(cur_retry_func) {
+			let status_box = cur_status_box;
+			let retry_func = cur_retry_func;
+			status_box.showFail(function() {
+				status_box.hide();
+				retry_func();
+			});
+		}
+		
+		// FAILED SITE. only continue if rest of sites don't depend on its video link.
+		// i.e. If youtube fails, twitter can't post because it won't have the link of youtube video.
+		if( siteIsVideoToLink(cur_retry_func) ) {
+			alert("Could not post to video site used for social links. Please retry "+video_info.video_to_link+" to continue.");
+		}
+		else {
+			postEverywhere();
+		}
+	}
+}
+
+// put it all together and present interface for opening site in posting window
+
+function openUploadTab(url, script, status_box, retry_func, success_cb) {
+	createPostWindow(function(window) {
+		cur_status_box = status_box;
+		cur_retry_func = retry_func;
+		cur_success_cb = success_cb;
+		
+		chrome.tabs.update(window.tabs[0].id, {url:url});
+		setPersistInjectScripts( ['utils.js', script] );
+		
+		status_box.showProgress(
+			function skip() {
+				closePostWindow();
+			},
+			function retry() {
+				openUploadTab(url, script, status_box, retry_func, success_cb);
+			}
+		);
 	});
 }

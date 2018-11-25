@@ -24,17 +24,17 @@ function importFilesFromStorage() {
 		console.log("all files loaded");
 		console.log(video_filelist)
 		
-		document.getElementById("global-new-tweet-button").click();
-		
 		wait(function tweetBoxAppear() {
-				return !! document.getElementById("Tweetstorm-dialog-dialog")
-				&& !! document.getElementById("Tweetstorm-dialog-dialog").offsetParent
+			document.getElementById("global-new-tweet-button").click();
+			
+			return !! document.getElementById("Tweetstorm-dialog-dialog")
+			&& !! document.getElementById("Tweetstorm-dialog-dialog").offsetParent
 		}, function() {
 			if(video_filelist || imgs_filelist)
 				setTimeout(uploadVideo, 1500);
 			else
 				setTimeout(makeTextPost, 1500);
-		}, 10000, 1000);
+		}, 10000);
 		//wait(function waitTextboxShow() { return !! document.getElementById("tweet-box-home-timeline").childNodes[0] }, uploadVideo, -1);
 	});
 }

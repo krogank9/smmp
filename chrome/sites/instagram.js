@@ -21,6 +21,8 @@ if(window.location.href.includes("instagram.com/logan_krumbhaar/")) {
 	}, 1000);
 }
 else if(window.location.href.endsWith("/accounts/activity/")) {
+	chrome.runtime.sendMessage({focusThis: true});
+	
 	importFilesFromStorage(function() {
 		console.log(video_filelist);
 		setTimeout(function() {
@@ -51,7 +53,7 @@ else if(window.location.href.endsWith("/create/details/")) {
 	});
 }
 else {
-	// wait for video dismiss popup
+	// wait for video dismiss/photo was popup
 	wait(function dismissAppear() {
 		return (Array.from(document.getElementsByTagName("button")).filter(b=>b.parentElement.children[0].tagName=="P" && b.parentElement.children.length == 2)[0]
 			&& Array.from(document.getElementsByTagName("button")).filter(b=>b.parentElement.children[0].tagName=="P" && b.parentElement.children.length == 2)[0].innerText.trim() == "Dismiss")
@@ -59,7 +61,11 @@ else {
 			(Array.from(document.getElementsByTagName("p"))[0]
 			&& Array.from(document.getElementsByTagName("p"))[0].innerText.includes("photo was"));
 	}, function() {
-		chrome.runtime.sendMessage({closeThis: true});
+		// unspoof after done insta tab
+		chrome.runtime.sendMessage({unspoofMobile: true});
+		setTimeout(function() {
+			chrome.runtime.sendMessage({closeThis: true});
+		}, 1000);
 	});
 }
 

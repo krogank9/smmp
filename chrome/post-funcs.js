@@ -6,9 +6,7 @@ function postToRealVideo() {
 		return
 	}
 	console.log("posting to real.video")
-	openUploadTab("https://www.brighteon.com/dashboard/upload", "sites/realvideo.js", function(tab){
-		tabOpened(tab.id, _G("status_realvideo"), postToRealVideo);
-	})
+	openUploadTab("https://www.brighteon.com/dashboard/upload", "sites/realvideo.js", _G("status_realvideo"), postToRealVideo);
 }
 function postToBitTube() {
 	if(!_G("post_bittube").checked) {
@@ -16,9 +14,7 @@ function postToBitTube() {
 		return
 	}
 	console.log("posting to BitTube")
-	openUploadTab("https://bit.tube/uploadmedia", "sites/bittube.js", function(tab){
-		tabOpened(tab.id, _G("status_bittube"), postToBitTube);
-	})
+	openUploadTab("https://bit.tube/uploadmedia", "sites/bittube.js", _G("status_bittube"), postToBitTube);
 }
 function postToMetacafe() {
 	if(!_G("post_metacafe").checked) {
@@ -26,9 +22,7 @@ function postToMetacafe() {
 		return
 	}
 	console.log("posting to Metacafe")
-	openUploadTab("http://www.metacafe.com/upload-video/", "sites/metacafe.js", function(tab){
-		tabOpened(tab.id, _G("status_metacafe"), postToMetacafe);
-	})
+	openUploadTab("http://www.metacafe.com/upload-video/", "sites/metacafe.js", _G("status_metacafe"), postToMetacafe);
 }
 function postToTopbuzz() {
 	if(!_G("post_topbuzz").checked) {
@@ -36,9 +30,7 @@ function postToTopbuzz() {
 		return
 	}
 	console.log("posting to Topbuzz")
-	openUploadTab("https://www.topbuzz.com/profile_v2/video", "sites/topbuzz.js", function(tab){
-		tabOpened(tab.id, _G("status_topbuzz"), postToTopbuzz);
-	})
+	openUploadTab("https://www.topbuzz.com/profile_v2/video", "sites/topbuzz.js", _G("status_topbuzz"), postToTopbuzz);
 }
 function postVimeoThumb() {
 	if(!_G("post_vimeo").checked) {
@@ -63,9 +55,7 @@ function postVimeoThumb() {
 		var edit_link = "https://vimeo.com/manage/____/general".replace("____", vid_id);
 		
 		console.log("setting Vimeo thumbnail")
-		openUploadTab(edit_link, "sites/vimeo_thumb.js", function(tab){
-			tabOpened(tab.id, _G("status_vimeo"), postVimeoThumb);
-		})
+		openUploadTab(edit_link, "sites/vimeo_thumb.js", _G("status_vimeo"), postVimeoThumb);
 	});
 }
 function postToVimeo() {
@@ -74,9 +64,7 @@ function postToVimeo() {
 		return
 	}
 	console.log("posting to Vimeo")
-	openUploadTab("https://vimeo.com/upload", "sites/vimeo.js", function(tab){
-		tabOpened(tab.id, _G("status_vimeo"), postToVimeo, function() {vid_post_queue.unshift(postVimeoThumb)});
-	})
+	openUploadTab("https://vimeo.com/upload", "sites/vimeo.js", _G("status_vimeo"), postToVimeo, function() {vid_post_queue.unshift(postVimeoThumb)});
 }
 function postToDTube() {
 	if(!_G("post_dtube").checked) {
@@ -84,9 +72,7 @@ function postToDTube() {
 		return
 	}
 	console.log("posting to DTube")
-	openUploadTab("https://d.tube/#!/upload", "sites/dtube.js", function(tab){
-		tabOpened(tab.id, _G("status_dtube"), postToDTube);
-	}) 
+	openUploadTab("https://d.tube/#!/upload", "sites/dtube.js", _G("status_dtube"), postToDTube);
 }
 function postToDailymotion() {
 	if(!_G("post_dailymotion").checked) {
@@ -94,9 +80,7 @@ function postToDailymotion() {
 		return;
 	}
 	console.log("posting to Dailymotion")
-	openUploadTab("https://www.dailymotion.com/partner/media/video/upload", "sites/dailymotion.js", function(tab){
-		tabOpened(tab.id, _G("status_dailymotion"), postToDailymotion);
-	}) 
+	openUploadTab("https://www.dailymotion.com/partner/media/video/upload", "sites/dailymotion.js", _G("status_dailymotion"), postToDailymotion);
 }
 function postToBitChute() {
 	if(!_G("post_bitchute").checked) {
@@ -104,9 +88,7 @@ function postToBitChute() {
 		return
 	}
 	console.log("posting to BitChute")
-	openUploadTab("https://www.bitchute.com/myupload", "sites/bitchute.js", function(tab){
-		tabOpened(tab.id, _G("status_bitchute"), postToBitChute);
-	}) 
+	openUploadTab("https://www.bitchute.com/myupload", "sites/bitchute.js", _G("status_bitchute"), postToBitChute);
 }
 function postToYouTube() {
 	if(!_G("post_youtube").checked) {
@@ -114,9 +96,7 @@ function postToYouTube() {
 		return
 	}
 	console.log("posting to YouTube")
-	openUploadTab("https://www.youtube.com/upload", "sites/youtube.js", function(tab){
-		tabOpened(tab.id, _G("status_youtube"), postToYouTube);
-	}) 
+	openUploadTab("https://www.youtube.com/upload", "sites/youtube.js", _G("status_youtube"), postToYouTube);
 }
 
 // social sites
@@ -136,9 +116,7 @@ function postToInstagram() {
 		return
 	}
 	console.log("posting to Instagram")
-	openUploadTab("https://www.instagram.com/logan_krumbhaar/", "sites/instagram.js", function(tab){
-		tabOpened(tab.id, _G("status_instagram"), postToInstagram);
-	})
+	openUploadTab("https://www.instagram.com/logan_krumbhaar/", "sites/instagram.js", _G("status_instagram"), postToInstagram);
 }
 
 function postToGplus() {
@@ -147,9 +125,7 @@ function postToGplus() {
 		return
 	}
 	console.log("posting to Gplus")
-	openUploadTab("https://plus.google.com/", "sites/gplus.js", function(tab){
-		tabOpened(tab.id, _G("status_gplus"), postToGplus);
-	})
+	openUploadTab("https://plus.google.com/", "sites/gplus.js", _G("status_gplus"), postToGplus);
 }
 function postToTumblr() {
 	if(!_G("post_tumblr").checked) {
@@ -157,9 +133,7 @@ function postToTumblr() {
 		return
 	}
 	console.log("posting to Tumblr")
-	openUploadTab("https://www.tumblr.com/dashboard/", "sites/tumblr.js", function(tab){
-		tabOpened(tab.id, _G("status_tumblr"), postToTumblr);
-	})
+	openUploadTab("https://www.tumblr.com/dashboard/", "sites/tumblr.js", _G("status_tumblr"), postToTumblr);
 }
 function postToTwitter() {
 	if(!_G("post_twitter").checked) {
@@ -167,9 +141,7 @@ function postToTwitter() {
 		return
 	}
 	console.log("posting to Twitter")
-	openUploadTab("https://www.twitter.com", "sites/twitter.js", function(tab){
-		tabOpened(tab.id, _G("status_twitter"), postToTwitter);
-	})
+	openUploadTab("https://www.twitter.com", "sites/twitter.js", _G("status_twitter"), postToTwitter);
 }
 function postToGab() {
 	if(!_G("post_gab").checked) {
@@ -177,9 +149,7 @@ function postToGab() {
 		return
 	}
 	console.log("posting to Gab")
-	openUploadTab("https://gab.ai/home", "sites/gab.js", function(tab){
-		tabOpened(tab.id, _G("status_gab"), postToGab);
-	})
+	openUploadTab("https://gab.ai/home", "sites/gab.js", _G("status_gab"), postToGab);
 }
 function postToMinds() {
 	if(!_G("post_minds").checked) {
@@ -187,9 +157,7 @@ function postToMinds() {
 		return
 	}
 	console.log("posting to Minds")
-	openUploadTab("https://www.minds.com/newsfeed/subscribed", "sites/minds.js", function(tab){
-		tabOpened(tab.id, _G("status_minds"), postToMinds);
-	})
+	openUploadTab("https://www.minds.com/newsfeed/subscribed", "sites/minds.js", _G("status_minds"), postToMinds);
 }
 function postToFacebookPersonal() {
 	if(!_G("post_facebook_personal").checked) {
@@ -197,19 +165,16 @@ function postToFacebookPersonal() {
 		return
 	}
 	console.log("posting to Facebook (Personal)")
-	openUploadTab("https://www.facebook.com", "sites/facebook_personal.js", function(tab){
-		tabOpened(tab.id, _G("status_facebook_personal"), postToFacebookPersonal);
-	})
+	openUploadTab("https://www.facebook.com", "sites/facebook_personal.js", _G("status_facebook_personal"), postToFacebookPersonal);
 }
 function postToFacebookPage() {
-	if(!_G("post_facebook_page").checked) {
+	if(!_G("post_facebook_page").checked || !_G("facebook_page_url").value ) {
 		postEverywhere();
 		return
 	}
+	
 	var page = simplifyUrl( _G("facebook_page_url").value );
 	
 	console.log("posting to Facebook Page: "+page)
-	openUploadTab(page, "sites/facebook_page.js", function(tab){
-		tabOpened(tab.id, _G("status_facebook_page"), postToFacebookPage);
-	})
+	openUploadTab(page, "sites/facebook_page.js", _G("status_facebook_page"), postToFacebookPage);
 }

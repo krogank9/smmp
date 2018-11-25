@@ -14,7 +14,7 @@ function onlyUnique(value, index, self) {
 
 // 1. Page specific
 if(window.location.href.includes("tumblr.com/dashboard/")) {
-	loadVidInfoFromStorage_Social(function() {
+	loadVidInfoFromStorage_Social(function() {	
 		if(video_filelist)
 			document.getElementById("new_post_label_video").click();
 		else if(imgs_filelist)
@@ -62,12 +62,16 @@ function makeTextPost() {
 			
 			document.getElementsByClassName("editor editor-richtext")[0].innerText = getSocialHeadline(0);
 			
+			chrome.runtime.sendMessage({focusThis: true});
+			
 			var post_button = document.getElementsByClassName("create_post_button")[0];
 			wait(function buttonEnabled() { return !post_button.disabled }, function() {
 				clearForceFocusElement();
 				//simulateCtrlEnter();
 				post_button.click();
-			}, 10000, 4000);
+			}, 10000, 1000);
+			
+			console.log("document.hidden"+document.hidden);
 		}, document.getElementsByClassName("editor editor-plaintext")[2]);
 	}, 10000, 1000);
 }

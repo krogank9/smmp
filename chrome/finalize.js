@@ -130,6 +130,8 @@ function postEverywhere() {
 		_G("refresh_page").onclick = function(){window.location.reload(true)}
 		console.log("postEverywhere complete")
 		
+		closePostWindow(true);
+		
 		chrome.tabs.getCurrent( function(tab){
 			chrome.tabs.update(tab.id, {active:true});
 			window.scrollTo(0,document.body.scrollHeight);

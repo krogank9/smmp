@@ -1,4 +1,4 @@
-// MAKE SURE ONLY ONE FINALIZE TAB OPEN AT ONCE.
+// ENSURE ONLY ONE SMMP EXTENSION TAB OPEN AT ONCE.
 // On open new tab close this one, select first, and move first to new pos.
 // if have multiple finalize tab open causes errors
 chrome.tabs.query({url:"chrome-extension://*/video-post.html"}, function(tabs) {
@@ -107,22 +107,16 @@ function isASCII(str) {
 
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
 	if(message.closeThis) {
-		curTab = null;
-
-		chrome.debugger.detach({tabId: sender.tab.id}, function cb() {
-			if(chrome.runtime.lastError) {
-				// wasn't attached to tab in first place
-			}
-		});
-		
-		if(message.closedErrorMessage)
+		if(message.closedErrorMessage) {
 			console.log(message.closedErrorMessage); // print error message if tab failed
-		else
-			tabClosed(sender.tab.id, true); // and dont say safely closed
-		
-		chrome.tabs.remove(sender.tab.id);
-
-		postEverywhere();
+			tabFinished(false);
+		}
+		else {
+			tabFinished(true);
+		}
+	}
+	else if(message.focusThis) {
+		focusPostWindow();
 	}
 	else if (message.injectToSubframes) {
 		chrome.tabs.executeScript(sender.tab.id, {file: "utils.js", allFrames:true}, function() {
@@ -137,130 +131,104 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
 	}
 	else if(message.simulateTyping) {
 		console.log('simulating typing')
-		chrome.debugger.attach({tabId: sender.tab.id}, "1.0", function() {
-			if(chrome.runtime.lastError)
-				;
-				
-			var text = removeEmojis(message.text);
-		
-			//message.text = message.text.replace("\n", "\r");
-			for(var i=0; i<text.length; i++) {
-				var char = text[i];
-				//console.log("typing: "+char);
-				//var keyCode = char.charCodeAt(0);
-				
-				if(char == "\n") {
-					chrome.debugger.sendCommand({tabId: sender.tab.id}, 'Input.dispatchKeyEvent',
-					{"type" : "rawKeyDown", "windowsVirtualKeyCode" : 13, "unmodifiedText" : '\r', "text" : '\r'});
-					chrome.debugger.sendCommand({tabId: sender.tab.id}, 'Input.dispatchKeyEvent',
-					{"type" : "char", "windowsVirtualKeyCode" : 13, "unmodifiedText" : '\r', "text" : '\r'});
-					chrome.debugger.sendCommand({tabId: sender.tab.id}, 'Input.dispatchKeyEvent',
-					{"type" : "keyUp", "windowsVirtualKeyCode" : 13, "unmodifiedText" : '\r', "text" : '\r'});
-				}
-				else {
-					chrome.debugger.sendCommand({tabId: sender.tab.id}, 'Input.dispatchKeyEvent',
-					{"type" : "rawKeyDown", "unmodifiedText" : char, "text" : char});
-					chrome.debugger.sendCommand({tabId: sender.tab.id}, 'Input.dispatchKeyEvent',
-					{"type" : "char", "unmodifiedText" : char, "text" : char});
-					chrome.debugger.sendCommand({tabId: sender.tab.id}, 'Input.dispatchKeyEvent',
-					{"type" : "keyUp", "unmodifiedText" : char, "text" : char});
-				}
+			
+		var text = removeEmojis(message.text);
+	
+		//message.text = message.text.replace("\n", "\r");
+		for(var i=0; i<text.length; i++) {
+			var char = text[i];
+			//console.log("typing: "+char);
+			//var keyCode = char.charCodeAt(0);
+			
+			if(char == "\n") {
+				chrome.debugger.sendCommand({tabId: sender.tab.id}, 'Input.dispatchKeyEvent',
+				{"type" : "rawKeyDown", "windowsVirtualKeyCode" : 13, "unmodifiedText" : '\r', "text" : '\r'});
+				chrome.debugger.sendCommand({tabId: sender.tab.id}, 'Input.dispatchKeyEvent',
+				{"type" : "char", "windowsVirtualKeyCode" : 13, "unmodifiedText" : '\r', "text" : '\r'});
+				chrome.debugger.sendCommand({tabId: sender.tab.id}, 'Input.dispatchKeyEvent',
+				{"type" : "keyUp", "windowsVirtualKeyCode" : 13, "unmodifiedText" : '\r', "text" : '\r'});
 			}
-		});
+			else {
+				chrome.debugger.sendCommand({tabId: sender.tab.id}, 'Input.dispatchKeyEvent',
+				{"type" : "rawKeyDown", "unmodifiedText" : char, "text" : char});
+				chrome.debugger.sendCommand({tabId: sender.tab.id}, 'Input.dispatchKeyEvent',
+				{"type" : "char", "unmodifiedText" : char, "text" : char});
+				chrome.debugger.sendCommand({tabId: sender.tab.id}, 'Input.dispatchKeyEvent',
+				{"type" : "keyUp", "unmodifiedText" : char, "text" : char});
+			}
+		}
 	}
 	else if(message.simulateDoubleUpPress) {
-		chrome.debugger.attach({tabId: sender.tab.id}, "1.0", function() {
-			if(chrome.runtime.lastError)
-				;
-			chrome.debugger.sendCommand({tabId: sender.tab.id}, 'Input.dispatchKeyEvent',
-			{"type" : "rawKeyDown", "windowsVirtualKeyCode" : 38});
-			chrome.debugger.sendCommand({tabId: sender.tab.id}, 'Input.dispatchKeyEvent',
-			{"type" : "keyUp", "windowsVirtualKeyCode" : 38});
-			
-			chrome.debugger.sendCommand({tabId: sender.tab.id}, 'Input.dispatchKeyEvent',
-			{"type" : "rawKeyDown", "windowsVirtualKeyCode" : 38});
-			chrome.debugger.sendCommand({tabId: sender.tab.id}, 'Input.dispatchKeyEvent',
-			{"type" : "keyUp", "windowsVirtualKeyCode" : 38});
-		});
+		chrome.debugger.sendCommand({tabId: sender.tab.id}, 'Input.dispatchKeyEvent',
+		{"type" : "rawKeyDown", "windowsVirtualKeyCode" : 38});
+		chrome.debugger.sendCommand({tabId: sender.tab.id}, 'Input.dispatchKeyEvent',
+		{"type" : "keyUp", "windowsVirtualKeyCode" : 38});
+		
+		chrome.debugger.sendCommand({tabId: sender.tab.id}, 'Input.dispatchKeyEvent',
+		{"type" : "rawKeyDown", "windowsVirtualKeyCode" : 38});
+		chrome.debugger.sendCommand({tabId: sender.tab.id}, 'Input.dispatchKeyEvent',
+		{"type" : "keyUp", "windowsVirtualKeyCode" : 38});
 	}
 	else if(message.simulateCtrlEnter) {
-		chrome.debugger.attach({tabId: sender.tab.id}, "1.0", function() {
-			if(chrome.runtime.lastError)
-				;
-			
-			chrome.debugger.sendCommand({tabId: sender.tab.id}, 'Input.dispatchKeyEvent',
-			{"type" : "rawKeyDown", "windowsVirtualKeyCode" : 13, modifiers: 2}); // enter w/ ctrl modifier
-			chrome.debugger.sendCommand({tabId: sender.tab.id}, 'Input.dispatchKeyEvent',
-			{"type" : "keyUp", "windowsVirtualKeyCode" : 13, modifiers: 2});
-		});
+		chrome.debugger.sendCommand({tabId: sender.tab.id}, 'Input.dispatchKeyEvent',
+		{"type" : "rawKeyDown", "windowsVirtualKeyCode" : 13, modifiers: 2}); // enter w/ ctrl modifier
+		chrome.debugger.sendCommand({tabId: sender.tab.id}, 'Input.dispatchKeyEvent',
+		{"type" : "keyUp", "windowsVirtualKeyCode" : 13, modifiers: 2});
 	}
 	else if(message.simulateBackspace) {
-		chrome.debugger.attach({tabId: sender.tab.id}, "1.0", function() {
-			if(chrome.runtime.lastError)
-				;
-			
-			chrome.debugger.sendCommand({tabId: sender.tab.id}, 'Input.dispatchKeyEvent',
-			{"type" : "rawKeyDown", "windowsVirtualKeyCode" : 8});
-			chrome.debugger.sendCommand({tabId: sender.tab.id}, 'Input.dispatchKeyEvent',
-			{"type" : "keyUp", "windowsVirtualKeyCode" : 8});
-		});
+		chrome.debugger.sendCommand({tabId: sender.tab.id}, 'Input.dispatchKeyEvent',
+		{"type" : "rawKeyDown", "windowsVirtualKeyCode" : 8});
+		chrome.debugger.sendCommand({tabId: sender.tab.id}, 'Input.dispatchKeyEvent',
+		{"type" : "keyUp", "windowsVirtualKeyCode" : 8});
 	}
 	else if(message.simulateClearTextbox) {
-		chrome.debugger.attach({tabId: sender.tab.id}, "1.0", function() {
-			if(chrome.runtime.lastError)
-				;
-			// press end to go to end
+		// press end to go to end
+		chrome.debugger.sendCommand({tabId: sender.tab.id}, 'Input.dispatchKeyEvent',
+		{"type" : "rawKeyDown", "windowsVirtualKeyCode" : 35});
+		chrome.debugger.sendCommand({tabId: sender.tab.id}, 'Input.dispatchKeyEvent',
+		{"type" : "keyUp", "windowsVirtualKeyCode" : 35});
+		
+		// backspace all
+		for(var i=0;i<250;i++) {
 			chrome.debugger.sendCommand({tabId: sender.tab.id}, 'Input.dispatchKeyEvent',
-			{"type" : "rawKeyDown", "windowsVirtualKeyCode" : 35});
+			{"type" : "rawKeyDown", "windowsVirtualKeyCode" : 8, modifiers: 2}); // backspace w/ ctrl modifier
 			chrome.debugger.sendCommand({tabId: sender.tab.id}, 'Input.dispatchKeyEvent',
-			{"type" : "keyUp", "windowsVirtualKeyCode" : 35});
-			
-			// backspace all
-			for(var i=0;i<250;i++) {
-				chrome.debugger.sendCommand({tabId: sender.tab.id}, 'Input.dispatchKeyEvent',
-				{"type" : "rawKeyDown", "windowsVirtualKeyCode" : 8, modifiers: 2}); // backspace w/ ctrl modifier
-				chrome.debugger.sendCommand({tabId: sender.tab.id}, 'Input.dispatchKeyEvent',
-				{"type" : "keyUp", "windowsVirtualKeyCode" : 8, modifiers: 2});
-			}
-		});
+			{"type" : "keyUp", "windowsVirtualKeyCode" : 8, modifiers: 2});
+		}
 	}
 	else if(message.simulateHover) {
-		chrome.debugger.attach({tabId: sender.tab.id}, "1.0", function() {
-			if(chrome.runtime.lastError)
-				;
-			// first simulate move mouse to location
-			chrome.debugger.sendCommand({tabId: sender.tab.id}, 'Input.dispatchMouseEvent',
-			{"type" : "mouseMoved", "x":message.x, "y":message.y});
-		});
+		// first simulate move mouse to location
+		chrome.debugger.sendCommand({tabId: sender.tab.id}, 'Input.dispatchMouseEvent',
+		{"type" : "mouseMoved", "x":message.x, "y":message.y});
 	}
 	else if(message.simulateClick) {
-		chrome.debugger.attach({tabId: sender.tab.id}, "1.0", function() {
-			if(chrome.runtime.lastError)
-				;
-			// first simulate move mouse to location
+		// first simulate move mouse to location
+		chrome.debugger.sendCommand({tabId: sender.tab.id}, 'Input.dispatchMouseEvent',
+		{"type" : "mousePressed", "x":message.x, "y":message.y});
+		setTimeout(function() {
 			chrome.debugger.sendCommand({tabId: sender.tab.id}, 'Input.dispatchMouseEvent',
-			{"type" : "mousePressed", "x":message.x, "y":message.y});
-			setTimeout(function() {
-				chrome.debugger.sendCommand({tabId: sender.tab.id}, 'Input.dispatchMouseEvent',
-				{"type" : "mouseReleased", "x":message.x, "y":message.y});
-			}, 100);
-		});
+			{"type" : "mouseReleased", "x":message.x, "y":message.y});
+		}, 100);
 	}
 	else if(message.spoofMobile) {
-		chrome.debugger.attach({tabId: sender.tab.id}, "1.0", function() {
-			if(chrome.runtime.lastError)
-				;
-			// 2. Debugger attached, now prepare for modifying the UA
-			chrome.debugger.sendCommand({tabId: sender.tab.id}, "Network.enable", {}, function(response) {
-				// Possible response: response.id / response.error
-				// 3. Change the User Agent string!
-				chrome.debugger.sendCommand({tabId: sender.tab.id}, "Network.setUserAgentOverride",
-				{userAgent: 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Mobile Safari/537.36'},
-				function(response) {});
-			});
-			// first simulate move mouse to location
-			chrome.debugger.sendCommand({tabId: sender.tab.id}, 'Input.dispatchMouseEvent',
-			{"type" : "mouseMoved", "x":message.x, "y":message.y});
+		chrome.debugger.sendCommand({tabId: sender.tab.id}, "Network.enable", {}, function(response) {
+			// Possible response: response.id / response.error
+			// 3. Change the User Agent string!
+			chrome.debugger.sendCommand({tabId: sender.tab.id}, "Network.setUserAgentOverride",
+			{userAgent: 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Mobile Safari/537.36'},
+			function(response) {});
+		});
+		// first simulate move mouse to location
+		chrome.debugger.sendCommand({tabId: sender.tab.id}, 'Input.dispatchMouseEvent',
+		{"type" : "mouseMoved", "x":message.x, "y":message.y});
+	}
+	else if(message.unspoofMobile) {
+		chrome.debugger.sendCommand({tabId: sender.tab.id}, "Network.enable", {}, function(response) {
+			// Possible response: response.id / response.error
+			// 3. Change the User Agent string!
+			chrome.debugger.sendCommand({tabId: sender.tab.id}, "Network.setUserAgentOverride",
+			{userAgent: navigator.userAgent},
+			function(response) {});
 		});
 	}
 });
