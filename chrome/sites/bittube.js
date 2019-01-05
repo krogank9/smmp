@@ -48,7 +48,7 @@ function setVidInfo() {
 		
 		simulateTypeText(video_info.title, function() {
 			
-			document.getElementsByClassName("ngx-editor-textarea")[0].focus();
+			document.getElementsByClassName('ql-editor')[0].focus();
 			
 			simulateClearTextbox(function() {
 				// metacafe does not allow links anyway, just put title as descr
